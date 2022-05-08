@@ -9,7 +9,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
-
 @SpringBootApplication
 public class SunnycloudApplication {
     private static final Logger log = LoggerFactory.getLogger(SunnycloudApplication.class);
@@ -29,6 +28,5 @@ public class SunnycloudApplication {
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();
     }
-
 
 }
