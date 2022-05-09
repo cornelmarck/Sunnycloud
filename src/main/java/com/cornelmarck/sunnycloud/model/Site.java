@@ -28,6 +28,7 @@ public class Site {
         this(null);
     }
 
+    @DynamoDBIgnore
     public UUID getSiteId() {
         return primaryKey.getSiteId();
     }
