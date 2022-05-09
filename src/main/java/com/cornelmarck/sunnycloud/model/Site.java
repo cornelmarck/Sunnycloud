@@ -3,6 +3,7 @@ package com.cornelmarck.sunnycloud.model;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import org.springframework.data.annotation.Id;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @DynamoDBTable(tableName="Main")
@@ -27,6 +28,13 @@ public class Site {
         this(null);
     }
 
+    public UUID getSiteId() {
+        return primaryKey.getSiteId();
+    }
+    public void setSiteId(UUID siteId) {
+        primaryKey.setSiteId(siteId);
+    }
+
     @DynamoDBHashKey
     @DynamoDBAttribute(attributeName = "UserEmailAddress")
     public String getUserId() {
@@ -37,7 +45,7 @@ public class Site {
     }
 
     @DynamoDBRangeKey
-    @DynamoDBAttribute(attributeName = "SiteId_Type_Timestamp")
+    @DynamoDBAttribute(attributeName = "Type_SiteId_Timestamp")
     public String getSortKey() {
         return primaryKey.getSortKey();
     }
@@ -101,5 +109,16 @@ public class Site {
         this.countryCode = countryCode;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Site site = (Site) o;
+        return timeZone == site.timeZone && Objects.equals(primaryKey, site.primaryKey) && Objects.equals(name, site.name) && Objects.equals(country, site.country) && Objects.equals(city, site.city) && Objects.equals(address, site.address) && Objects.equals(zip, site.zip) && Objects.equals(countryCode, site.countryCode);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(primaryKey, name, country, city, address, zip, timeZone, countryCode);
+    }
 }

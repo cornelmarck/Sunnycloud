@@ -19,17 +19,10 @@ public class DynamoDBIntegrationTest {
     private AmazonDynamoDB amazonDynamoDB;
 
     @Autowired
-    @Qualifier("DynamoSDK")
     private DynamoDBMapper dynamoDBMapper;
 
     @Test
     public void mainTableExists() {
         Assertions.assertEquals("Main", amazonDynamoDB.listTables().getTableNames().get(0));
-    }
-
-    @Test
-    public void insertUser() {
-        User user = new User("asdf", "asdf");
-        dynamoDBMapper.save(user);
     }
 }

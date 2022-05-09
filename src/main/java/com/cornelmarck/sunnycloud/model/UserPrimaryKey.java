@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 public class UserPrimaryKey implements Serializable {
@@ -23,10 +24,22 @@ public class UserPrimaryKey implements Serializable {
         this.id = id;
     }
 
-    @DynamoDBRangeKey(attributeName = "Site_Mode_Timestamp")
+    @DynamoDBRangeKey(attributeName = "Type_SiteId_Timestamp")
     public String getSortKey() {
-        return "User";
+        return "UserDetails";
     }
-    public void setSortKey(String sortKey) {
+    public void setSortKey(String sortKey) {}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserPrimaryKey that = (UserPrimaryKey) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

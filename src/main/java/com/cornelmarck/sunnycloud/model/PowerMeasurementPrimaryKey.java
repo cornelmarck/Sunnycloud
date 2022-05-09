@@ -1,0 +1,4 @@
+package com.cornelmarck.sunnycloud.model;
+
+public class PowerMeasurementPrimaryKey {
+}

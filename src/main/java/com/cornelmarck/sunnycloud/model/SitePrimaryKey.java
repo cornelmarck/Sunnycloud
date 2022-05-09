@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -37,12 +38,24 @@ public class SitePrimaryKey implements Serializable {
     }
 
     @DynamoDBRangeKey
-    @DynamoDBAttribute(attributeName = "SiteId_Type_Timestamp")
+    @DynamoDBAttribute(attributeName = "Type_SiteId_Timestamp")
     public String getSortKey() {
-        return siteId + "#" + "Site";
+        return "SiteDetails#" + siteId;
     }
     public void setSortKey(String sortKey) {
-        siteId = UUID.fromString(sortKey.split("#")[0]);
+        siteId = UUID.fromString(sortKey.split("#")[1]);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SitePrimaryKey that = (SitePrimaryKey) o;
+        return Objects.equals(userId, that.userId) && Objects.equals(siteId, that.siteId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, siteId);
+    }
 }

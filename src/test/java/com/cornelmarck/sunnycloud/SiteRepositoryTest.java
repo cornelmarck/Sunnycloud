@@ -1,12 +1,12 @@
 package com.cornelmarck.sunnycloud;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.model.SitePrimaryKey;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +20,9 @@ public class SiteRepositoryTest {
     @Autowired
     SiteRepository siteRepository;
 
+    @Autowired
+    DynamoDBMapper dynamoDBMapper;
+
     @Test
     public void insertAndRetrieveSingleItem() {
         Site one = new Site("example@hello.com");
@@ -32,10 +35,9 @@ public class SiteRepositoryTest {
         one.setCountryCode("UK");
         siteRepository.save(one);
 
-        SitePrimaryKey key = new SitePrimaryKey("example@hello.com");
-
+        SitePrimaryKey key = new SitePrimaryKey("example@hello.com", one.getSiteId());
+        Optional<Site> found = siteRepository.findById(key);
         Assertions.assertTrue(found.isPresent());
-        MatcherAssert.assertThat(one, Matchers.equalTo(found.get()));
+        Assertions.assertEquals(one, found.get());
     }
-
 }

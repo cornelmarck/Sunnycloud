@@ -3,6 +3,7 @@ package com.cornelmarck.sunnycloud.model;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import org.springframework.data.annotation.Id;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @DynamoDBTable(tableName="Main")
@@ -27,7 +28,7 @@ public class User {
         primaryKey.setId(id);
     }
 
-    @DynamoDBRangeKey(attributeName = "SiteId_Mode_Timestamp")
+    @DynamoDBRangeKey(attributeName = "Type_SiteId_Timestamp")
     public String getSortKey() {
         return primaryKey.getSortKey();
     }
@@ -43,4 +44,16 @@ public class User {
         this.mobileNumber = mobileNumber;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(primaryKey, user.primaryKey) && Objects.equals(mobileNumber, user.mobileNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(primaryKey, mobileNumber);
+    }
 }

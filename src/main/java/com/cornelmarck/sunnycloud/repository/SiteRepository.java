@@ -9,5 +9,5 @@ import java.util.List;
 
 @EnableScan
 public interface SiteRepository extends CrudRepository<Site, SitePrimaryKey> {
-    List<Site> findSitesBySortKeyStartsWith(String start)
+
 }
