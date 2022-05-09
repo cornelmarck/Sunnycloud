@@ -2,6 +2,7 @@ package com.cornelmarck.sunnycloud;
 
 
 import com.cornelmarck.sunnycloud.model.User;
+import com.cornelmarck.sunnycloud.model.UserPrimaryKey;
 import com.cornelmarck.sunnycloud.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,21 +20,16 @@ public class UserRepositoryTest {
     UserRepository userRepository;
 
     @Test
-    public void insertSingleItem() {
-        User one = new User();
-        one.setEmailAddress("asdf@adfs.com");
-        one.setMobileNumber("+23423423324");
+    public void insertAndRetrieveSingleItem() {
+        User one = new User("example@hello.com");
+        one.setMobileNumber("+44 8942 244103");
         userRepository.save(one);
+
+        UserPrimaryKey key = new UserPrimaryKey("example@hello.com");
+        Optional<User> found = userRepository.findById(key);
+
+        Assertions.assertTrue(found.isPresent());
+        Assertions.assertEquals("+44 8942 244103", found.get().getMobileNumber());
     }
-
-    @Test
-    public void retrieveSingleItem() {
-        User.PrimaryKey primaryKey = new User.PrimaryKey();
-        primaryKey.setId(UUID.fromString("2e9e6a4e-9287-45f9-8f93-5e2b2d373240"));
-
-        Optional<User> found = userRepository.findById(primaryKey);
-        Assertions.assertEquals("asdf", found.get().getEmailAddress());
-    }
-
 
 }
