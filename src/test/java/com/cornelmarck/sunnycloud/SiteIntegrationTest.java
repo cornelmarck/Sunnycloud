@@ -1,6 +1,5 @@
 package com.cornelmarck.sunnycloud;
 
-import com.cornelmarck.sunnycloud.SunnycloudApplication;
 import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.model.SitePrimaryKey;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
@@ -39,13 +38,13 @@ public class SiteIntegrationTest {
 
     @Test
     public void getAllSitesByUser() {
-        List<Site> sites = siteRepository.findSitesByUserIdAndSortKeyStartsWith("example@hello.com", "SiteDetails");
+        List<Site> sites = siteRepository.findAllByUserIdAndSortKeyStartsWith("example@hello.com", "SiteDetails");
         Assertions.assertFalse(sites.isEmpty());
     }
 
     @Test
     public void getAllSitesByInvalidUser() {
-        List<Site> sites = siteRepository.findSitesByUserIdAndSortKeyStartsWith("invalid", "SiteDetails");
+        List<Site> sites = siteRepository.findAllByUserIdAndSortKeyStartsWith("invalid", "SiteDetails");
         Assertions.assertTrue(sites.isEmpty());
     }
 }

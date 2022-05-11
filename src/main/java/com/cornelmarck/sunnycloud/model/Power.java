@@ -10,23 +10,27 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @DynamoDBTable(tableName="Main")
-public class PowerMeasurement {
+public class Power {
     @Id
-    PowerMeasurementPrimaryKey primaryKey;
+    private PowerPrimaryKey primaryKey;
 
     private double power;
 
-    public PowerMeasurement() {
-        primaryKey = new PowerMeasurementPrimaryKey();
+    public Power() {
+        primaryKey = new PowerPrimaryKey();
     }
-    public PowerMeasurement(String userId, UUID siteId, LocalDateTime dateTime) {
-        primaryKey = new PowerMeasurementPrimaryKey();
+    public Power(String userId, UUID siteId, LocalDateTime dateTime) {
+        primaryKey = new PowerPrimaryKey();
         primaryKey.setUserId(userId);
         primaryKey.setSiteId(siteId);
         primaryKey.setDateTime(dateTime);
     }
+    public Power(String userId, UUID siteId, LocalDateTime dateTime, double power) {
+        this(userId, siteId, dateTime);
+        setPower(power);
+    }
 
-    @DynamoDBHashKey(attributeName = "UserEmailAddress")
+    @DynamoDBHashKey(attributeName = "EmailAddress")
     public String getUserId() {
         return primaryKey.getUserId();
     }

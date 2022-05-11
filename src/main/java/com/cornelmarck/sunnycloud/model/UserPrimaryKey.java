@@ -14,7 +14,7 @@ public class UserPrimaryKey implements Serializable {
         setId(userId);
     }
 
-    @DynamoDBHashKey(attributeName = "UserEmailAddress")
+    @DynamoDBHashKey(attributeName = "EmailAddress")
     public String getId() {
         return id;
     }

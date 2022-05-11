@@ -37,7 +37,7 @@ public class Site {
     }
 
     @DynamoDBHashKey
-    @DynamoDBAttribute(attributeName = "UserEmailAddress")
+    @DynamoDBAttribute(attributeName = "EmailAddress")
     public String getUserId() {
         return primaryKey.getUserId();
     }

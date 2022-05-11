@@ -1,10 +1,12 @@
 package com.cornelmarck.sunnycloud.model;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.*;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import org.springframework.data.annotation.Id;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @DynamoDBTable(tableName="Main")
 public class User {
@@ -20,7 +22,7 @@ public class User {
         this(null);
     }
 
-    @DynamoDBHashKey(attributeName = "UserEmailAddress")
+    @DynamoDBHashKey(attributeName = "EmailAddress")
     public String getId() {
         return primaryKey.getId();
     }
@@ -55,5 +57,12 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(primaryKey, mobileNumber);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "emailAddress=" + primaryKey.getId() + ", mobileNumber=" + getMobileNumber()
+                + '}';
     }
 }

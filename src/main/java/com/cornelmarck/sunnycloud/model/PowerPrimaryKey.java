@@ -8,13 +8,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class PowerMeasurementPrimaryKey implements Serializable {
+public class PowerPrimaryKey implements Serializable {
     private String userId;
     private UUID siteId;
     private LocalDateTime dateTime;
 
-    public PowerMeasurementPrimaryKey() {}
-    public PowerMeasurementPrimaryKey(String userId, UUID siteId, LocalDateTime dateTime) {
+    public PowerPrimaryKey() {}
+    public PowerPrimaryKey(String userId, UUID siteId, LocalDateTime dateTime) {
         setUserId(userId);
         setSiteId(siteId);
         setDateTime(dateTime);
@@ -36,7 +36,7 @@ public class PowerMeasurementPrimaryKey implements Serializable {
         this.dateTime = dateTime;
     }
 
-    @DynamoDBHashKey(attributeName = "UserEmailAddress")
+    @DynamoDBHashKey(attributeName = "EmailAddress")
     public String getUserId() {
         return userId;
     }

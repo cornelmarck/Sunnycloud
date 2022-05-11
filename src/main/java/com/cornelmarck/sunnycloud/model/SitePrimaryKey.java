@@ -22,7 +22,7 @@ public class SitePrimaryKey implements Serializable {
     }
 
     @DynamoDBHashKey
-    @DynamoDBAttribute(attributeName = "UserEmailAddress")
+    @DynamoDBAttribute(attributeName = "EmailAddress")
     public String getUserId() {
         return userId;
     }
