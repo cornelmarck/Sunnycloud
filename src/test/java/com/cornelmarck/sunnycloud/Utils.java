@@ -155,34 +155,34 @@ public class Utils {
         Site site4 = site;
 
         LocalDateTime base = LocalDateTime.parse("2021-08-05T10:12:00.000");
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(0).toString(), 4.3));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(10).toString(), 3.3));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(20).toString(), 4.6));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(30).toString(), 5.1));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(40).toString(), 2.8));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(50).toString(), 0.0));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(0).toString(), 4.31));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(10).toString(), 3.31));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(20).toString(), 4.61));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(30).toString(), 5.11));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(40).toString(), 2.81));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(50).toString(), 0.01));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(0), 4.3));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(10), 3.3));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(20), 4.6));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(30), 5.1));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(40), 2.8));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(50), 0.0));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(0), 4.31));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(10), 3.31));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(20), 4.61));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(30), 5.11));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(40), 2.81));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(50), 0.01));
 
         base = LocalDateTime.parse("2021-08-05T10:00:00.000");
-        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(0).toString(), 2));
-        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(5).toString(), 3));
-        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(8).toString(), 1.3));
-        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(10).toString(), 1.2));
-        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(13).toString(), 1.1));
-        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(25).toString(), 0.9));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(0), 2));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(5), 3));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(8), 1.3));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(10), 1.2));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(13), 1.1));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(25), 0.9));
 
         base = LocalDateTime.parse("2021-08-05T10:12:00.000");
-        dynamoDBMapper.save(new Measurement(site3.getId(), base.plusMinutes(0).toString(), 7.3));
-        dynamoDBMapper.save(new Measurement(site3.getId(), base.plusMinutes(10).toString(), 4.3));
+        dynamoDBMapper.save(new Measurement(site3.getId(), base.plusMinutes(0), 7.3));
+        dynamoDBMapper.save(new Measurement(site3.getId(), base.plusMinutes(10), 4.3));
 
         base = LocalDateTime.parse("2014-02-28T13:08:10");
-        dynamoDBMapper.save(new Measurement(site4.getId(), base.plusMinutes(0).toString(), 4.3));
-        dynamoDBMapper.save(new Measurement(site4.getId(), base.plusDays(10).toString(), 8.3));
-        dynamoDBMapper.save(new Measurement(site4.getId(), base.plusDays(8).toString(), 0.1));
+        dynamoDBMapper.save(new Measurement(site4.getId(), base.plusMinutes(0), 4.3));
+        dynamoDBMapper.save(new Measurement(site4.getId(), base.plusDays(10), 8.3));
+        dynamoDBMapper.save(new Measurement(site4.getId(), base.plusDays(8), 0.1));
     }
 }

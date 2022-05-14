@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.text.SimpleDateFormat;
-
 @Configuration
 public class DynamoDBConfig {
     @Value("${amazon.dynamodb.endpoint}")
@@ -42,10 +40,4 @@ public class DynamoDBConfig {
     public DynamoDBMapper dynamoDBMapper(AmazonDynamoDB amazonDynamoDB) {
         return new DynamoDBMapper(amazonDynamoDB, DynamoDBMapperConfig.DEFAULT);
     }
-
-    @Bean
-    public SimpleDateFormat simpleDateFormat() {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    }
-
 }
