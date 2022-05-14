@@ -33,15 +33,17 @@ public class UserIntegrationTest {
     }
 
     @Test
-    public void findExistingUser() {
-        Optional<User> user = userRepository.findByIdAndSortKeyEquals("ex2@hello.com", "UserDetails");
+    public void findUser() {
+        Optional<User> user = userRepository.findByEmailAddress("ex2@hello.com");
         Assertions.assertTrue(user.isPresent());
-        Assertions.assertEquals("2345 6789", user.get().getMobileNumber());
+        Assertions.assertEquals("2345 6789", user.get().getMobilePhoneNumber());
     }
 
     @Test
     public void findAllUsers() {
-        List<User> allUsers = userRepository.findAllBySortKeyEquals("UserDetails");
+        List<User> allUsers = userRepository.findAll();
         Assertions.assertEquals(3, allUsers.size());
     }
+
+
 }

@@ -14,14 +14,14 @@ public class UserController {
         this.repository = userRepository;
     }
 
-    @GetMapping("/users/{id}")
-    User one(@PathVariable String id) {
-        return repository.findByIdAndSortKeyEquals(id, "UserDetails")
-                .orElseThrow(() -> new UserNotFoundException(id));
+    @GetMapping("/users/{emailAddress}")
+    User one(@PathVariable String emailAddress) {
+        return repository.findByEmailAddress(emailAddress)
+                .orElseThrow(() -> new UserNotFoundException(emailAddress));
     }
 
     @GetMapping("/users")
     List<User> all() {
-        return repository.findAllBySortKeyEquals("UserDetails");
+        return repository.findAll();
     }
 }

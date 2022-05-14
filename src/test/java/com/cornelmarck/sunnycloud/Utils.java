@@ -5,22 +5,18 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.model.*;
-import com.cornelmarck.sunnycloud.model.Power;
-import com.cornelmarck.sunnycloud.model.Site;
+import com.cornelmarck.sunnycloud.model.Location;
+import com.cornelmarck.sunnycloud.model.Measurement;
 import com.cornelmarck.sunnycloud.model.User;
-import com.cornelmarck.sunnycloud.repository.UserRepository;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
+import com.cornelmarck.sunnycloud.model.Site;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@SpringBootTest(classes = SunnycloudApplication.class)
-@TestPropertySource(properties = {"amazon.dynamodb.endpoint=http://localhost:8000/", "amazon.aws.accesskey=test1", "amazon.aws.secretkey=test2" })
 public class Utils {
-    private AmazonDynamoDB amazonDynamoDB;
-    private DynamoDBMapper dynamoDBMapper;
+    private final AmazonDynamoDB amazonDynamoDB;
+    private final DynamoDBMapper dynamoDBMapper;
 
     public Utils(AmazonDynamoDB amazonDynamoDB, DynamoDBMapper dynamoDBMapper) {
         this.amazonDynamoDB = amazonDynamoDB;
@@ -31,21 +27,21 @@ public class Utils {
         DynamoDB dynamoDB = new DynamoDB(amazonDynamoDB);
 
         List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
-        attributeDefinitions.add(new AttributeDefinition().withAttributeName("EmailAddress").withAttributeType("S"));
-        attributeDefinitions.add(new AttributeDefinition().withAttributeName("Type_SiteId_Timestamp").withAttributeType(ScalarAttributeType.S));
+        attributeDefinitions.add(new AttributeDefinition().withAttributeName("Id").withAttributeType(ScalarAttributeType.S));
+        attributeDefinitions.add(new AttributeDefinition().withAttributeName("SortKey").withAttributeType(ScalarAttributeType.S));
 
         List<KeySchemaElement> keySchema = new ArrayList<>();
-        keySchema.add(new KeySchemaElement().withAttributeName("EmailAddress").withKeyType(KeyType.HASH));
-        keySchema.add(new KeySchemaElement().withAttributeName("Type_SiteId_Timestamp").withKeyType(KeyType.RANGE));
+        keySchema.add(new KeySchemaElement().withAttributeName("Id").withKeyType(KeyType.HASH));
+        keySchema.add(new KeySchemaElement().withAttributeName("SortKey").withKeyType(KeyType.RANGE));
 
         GlobalSecondaryIndex gsi1 = new GlobalSecondaryIndex()
-                .withIndexName("MobileNumberIndex")
-                .withKeySchema(new KeySchemaElement().withAttributeName("MobileNumber").withKeyType(KeyType.HASH))
+                .withIndexName("SiteOwnerIndex")
+                .withKeySchema(new KeySchemaElement().withAttributeName("OwnerId").withKeyType(KeyType.HASH))
                 .withProvisionedThroughput(new ProvisionedThroughput()
                         .withReadCapacityUnits(1L)
                         .withWriteCapacityUnits(1L))
-                .withProjection(new Projection().withProjectionType(ProjectionType.KEYS_ONLY));
-        attributeDefinitions.add(new AttributeDefinition().withAttributeName("MobileNumber").withAttributeType(ScalarAttributeType.S));
+                .withProjection(new Projection().withProjectionType(ProjectionType.ALL));
+        attributeDefinitions.add(new AttributeDefinition().withAttributeName("OwnerId").withAttributeType(ScalarAttributeType.S));
 
         CreateTableRequest request = new CreateTableRequest()
                 .withTableName("Main")
@@ -66,88 +62,127 @@ public class Utils {
             Table main = dynamoDB.getTable("Main");
             main.delete();
         }
-        catch (ResourceNotFoundException ignored) {}
+        catch (RuntimeException ignored) {}
     }
 
     public void populateMainTable() {
-        User user1 = new User("ex1@hello.com");
-        user1.setMobileNumber("1234 5678");
-        User user2 = new User("ex2@hello.com");
-        user2.setMobileNumber("2345 6789");
-        User user3 = new User("ex3@hello.com");
-        user3.setMobileNumber("+1 1234 5678");
+        User user1 = new User();
+        user1.setEmailAddress("ex1@hello.com");
+        user1.setName("Harry Style");
+        user1.setMobilePhoneNumber("1234 5678");
+        User user2 = new User();
+        user2.setEmailAddress("ex2@hello.com");
+        user2.setMobilePhoneNumber("2345 6789");
+        user2.setName("Joanna Doe");
+        User user3 = new User();
+        user3.setEmailAddress("ex3@asdf.com");
+        user3.setMobilePhoneNumber("+1 1234 5678");
+        user3.setName("Samantha Smith");
         dynamoDBMapper.batchSave(List.of(user1, user2, user3));
 
+        Site site = new Site();
+        site.setId("07dd6a84-845e-474d-8c87-a4a3ef21c09e");
+        site.setOwnerId(user1.getEmailAddress());
+        site.setName("Back garden PV");
+        site.setPeakPower(3.67);
+        site.setTiltAngle(21.4);
+        site.setAzimuthAngle(0.12);
+        site.setLocation(new Location());
+        site.getLocation().setLatitude(51.5072);
+        site.getLocation().setLongitude(-0.12755);
+        site.getLocation().setCity("London");
+        site.getLocation().setAddress1("34 Windsor Drive");
+        site.getLocation().setZipCode("W3 5CX");
+        site.getLocation().setCountry("United Kingdom");
+        site.getLocation().setCountryCode("UK");
+        site.getLocation().setTimeZone("UTC");
+        dynamoDBMapper.save(site);
+        Site site1 = site;
 
-        Site site1 = new Site(user1.getId());
-        site1.setName("Back garden PV");
-        site1.setCity("London");
-        site1.setAddress("34 Windsor Drive");
-        site1.setZip("W3 5CX");
-        site1.setCountry("United Kingdom");
-        site1.setCountryCode("UK");
-        site1.setTimeZone(0);
-        dynamoDBMapper.save(site1);
+        site = new Site();
+        site.setOwnerId(user1.getEmailAddress());
+        site.setName("Front roof installation");
+        site.setPeakPower(24.67);
+        site.setTiltAngle(34.34);
+        site.setAzimuthAngle(32.12);
+        site.setLocation(new Location());
+        site.getLocation().setLatitude(52.5072);
+        site.getLocation().setLongitude(-0.30755);
+        site.getLocation().setCity("Guildford");
+        site.getLocation().setAddress1("12 Queen's Court");
+        site.getLocation().setAddress2("Uxbridge Road");
+        site.getLocation().setZipCode("SW92 AB1");
+        site.getLocation().setCountry("United Kingdom");
+        site.getLocation().setCountryCode("UK");
+        site.getLocation().setTimeZone("UTC");
+        dynamoDBMapper.save(site);
+        Site site2 = site;
 
-        Site site2 = new Site(user1.getId());
-        site2.setName("Front roof installation");
-        site2.setCity("London");
-        site2.setAddress("34 Windsor Drive");
-        site2.setZip("W3 5CX");
-        site2.setCountry("United Kingdom");
-        site2.setCountryCode("UK");
-        site2.setTimeZone(0);
-        dynamoDBMapper.save(site2);
+        site = new Site();
+        site.setOwnerId(user2.getEmailAddress());
+        site.setName("Installation");
+        site.setPeakPower(2.467);
+        site.setTiltAngle(45);
+        site.setAzimuthAngle(0.34);
+        site.setLocation(new Location());
+        site.getLocation().setLatitude(55.5072);
+        site.getLocation().setLongitude(-5.30755);
+        site.getLocation().setCity("Manchester");
+        site.getLocation().setAddress1("45 Small Heath");
+        site.getLocation().setZipCode("BEA 5WS");
+        site.getLocation().setCountry("United Kingdom");
+        site.getLocation().setCountryCode("UK");
+        site.getLocation().setTimeZone("UTC");
+        dynamoDBMapper.save(site);
+        Site site3 = site;
 
-        Site site3 = new Site(user2.getId());
-        site3.setName("Installation");
-        site3.setCity("Manchester");
-        site3.setAddress("45 Small Heath");
-        site3.setZip("BEA 5WS");
-        site3.setCountry("United Kingdom");
-        site3.setCountryCode("UK");
-        site3.setTimeZone(0);
-        dynamoDBMapper.save(site3);
+        site = new Site();
+        site.setOwnerId(user3.getEmailAddress());
+        site.setName("Installation");
+        site.setPeakPower(2.467);
+        site.setTiltAngle(45);
+        site.setAzimuthAngle(0.34);
+        site.setLocation(new Location());
+        site.getLocation().setLatitude(50.5072);
+        site.getLocation().setLongitude(12.30755);
+        site.getLocation().setCity("Dortmund");
+        site.getLocation().setAddress1("Friedrichsstraße 45");
+        site.getLocation().setZipCode("ASDF 23");
+        site.getLocation().setCountry("Germany");
+        site.getLocation().setCountryCode("DE");
+        site.getLocation().setTimeZone("UTC+1");
+        dynamoDBMapper.save(site);
+        Site site4 = site;
 
-        Site site4 = new Site(user3.getId());
-        site4.setName("PV Installation am Dach");
-        site4.setCity("Dortmund");
-        site4.setAddress("Friedrichsstraße 45");
-        site4.setZip("ASDF 23");
-        site4.setCountry("Germany");
-        site4.setCountryCode("DE");
-        site4.setTimeZone(1);
-        dynamoDBMapper.save(site4);
+        LocalDateTime base = LocalDateTime.parse("2021-08-05T10:12:00.000");
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(0).toString(), 4.3));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(10).toString(), 3.3));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(20).toString(), 4.6));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(30).toString(), 5.1));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(40).toString(), 2.8));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(50).toString(), 0.0));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(0).toString(), 4.31));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(10).toString(), 3.31));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(20).toString(), 4.61));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(30).toString(), 5.11));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(40).toString(), 2.81));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(50).toString(), 0.01));
 
-        LocalDateTime base = LocalDateTime.parse("2021-08-05T10:12:00");
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusMinutes(0), 4.3));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusMinutes(10), 3.3));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusMinutes(20), 4.6));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusMinutes(30), 5.1));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusMinutes(40), 2.8));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusMinutes(50), 0.0));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusHours(0), 4.31));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusHours(10), 3.31));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusHours(20), 4.61));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusHours(30), 5.11));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusHours(40), 2.81));
-        dynamoDBMapper.save(new Power(user1.getId(), site1.getSiteId(), base.plusHours(50), 0.01));
+        base = LocalDateTime.parse("2021-08-05T10:00:00.000");
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(0).toString(), 2));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(5).toString(), 3));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(8).toString(), 1.3));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(10).toString(), 1.2));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(13).toString(), 1.1));
+        dynamoDBMapper.save(new Measurement(site2.getId(), base.plusMinutes(25).toString(), 0.9));
 
-        base = LocalDateTime.parse("2021-08-05T10:00:00");
-        dynamoDBMapper.save(new Power(user1.getId(), site2.getSiteId(), base.plusMinutes(0), 2));
-        dynamoDBMapper.save(new Power(user1.getId(), site2.getSiteId(), base.plusMinutes(5), 3));
-        dynamoDBMapper.save(new Power(user1.getId(), site2.getSiteId(), base.plusMinutes(8), 1.3));
-        dynamoDBMapper.save(new Power(user1.getId(), site2.getSiteId(), base.plusMinutes(10), 1.2));
-        dynamoDBMapper.save(new Power(user1.getId(), site2.getSiteId(), base.plusMinutes(13), 1.1));
-        dynamoDBMapper.save(new Power(user1.getId(), site2.getSiteId(), base.plusMinutes(25), 0.9));
-
-        base = LocalDateTime.parse("2021-08-05T10:12:00");
-        dynamoDBMapper.save(new Power(user2.getId(), site3.getSiteId(), base.plusMinutes(0), 7.3));
-        dynamoDBMapper.save(new Power(user2.getId(), site3.getSiteId(), base.plusMinutes(10), 4.3));
+        base = LocalDateTime.parse("2021-08-05T10:12:00.000");
+        dynamoDBMapper.save(new Measurement(site3.getId(), base.plusMinutes(0).toString(), 7.3));
+        dynamoDBMapper.save(new Measurement(site3.getId(), base.plusMinutes(10).toString(), 4.3));
 
         base = LocalDateTime.parse("2014-02-28T13:08:10");
-        dynamoDBMapper.save(new Power(user3.getId(), site4.getSiteId(), base.plusMinutes(0), 4.3));
-        dynamoDBMapper.save(new Power(user3.getId(), site4.getSiteId(), base.plusDays(10), 8.3));
-        dynamoDBMapper.save(new Power(user3.getId(), site4.getSiteId(), base.plusDays(8), 0.1));
+        dynamoDBMapper.save(new Measurement(site4.getId(), base.plusMinutes(0).toString(), 4.3));
+        dynamoDBMapper.save(new Measurement(site4.getId(), base.plusDays(10).toString(), 8.3));
+        dynamoDBMapper.save(new Measurement(site4.getId(), base.plusDays(8).toString(), 0.1));
     }
 }
