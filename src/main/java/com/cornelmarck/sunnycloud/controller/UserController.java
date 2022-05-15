@@ -2,7 +2,9 @@ package com.cornelmarck.sunnycloud.controller;
 
 import com.cornelmarck.sunnycloud.model.User;
 import com.cornelmarck.sunnycloud.repository.UserRepository;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -24,4 +26,6 @@ public class UserController {
     List<User> all() {
         return repository.findAll();
     }
+
+
 }

@@ -161,7 +161,7 @@ public class Utils {
         dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(30), 5.1));
         dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(40), 2.8));
         dynamoDBMapper.save(new Measurement(site1.getId(), base.plusMinutes(50), 0.0));
-        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(0), 4.31));
+        dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(1), 4.31));
         dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(10), 3.31));
         dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(20), 4.61));
         dynamoDBMapper.save(new Measurement(site1.getId(), base.plusHours(30), 5.11));

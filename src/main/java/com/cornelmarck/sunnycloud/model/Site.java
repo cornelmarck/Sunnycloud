@@ -12,7 +12,8 @@ public class Site {
     @Getter @Setter @DynamoDBRangeKey(attributeName = "SortKey") private String sortKey;
     @Getter @Setter @DynamoDBAttribute(attributeName = "Name") String name;
     @Getter @Setter
-    @DynamoDBIndexHashKey(globalSecondaryIndexName = "SiteOwnerIndex", attributeName = "OwnerId") private String ownerId;
+        @DynamoDBIndexHashKey(globalSecondaryIndexName = "SiteOwnerIndex", attributeName = "OwnerId")
+        private String ownerId;
     @Getter @Setter @DynamoDBAttribute(attributeName = "Location") private Location location;
     @Getter @Setter @DynamoDBAttribute(attributeName = "PeakPower") private double peakPower;
     @Getter @Setter @DynamoDBAttribute(attributeName = "AzimuthAngle") double azimuthAngle;
