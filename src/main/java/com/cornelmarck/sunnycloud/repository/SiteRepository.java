@@ -58,5 +58,11 @@ public class SiteRepository {
         return dynamoDBMapper.scan(Site.class, scanExpression);
     }
 
+    public void insert(Site newSite) {
+        dynamoDBMapper.save(newSite);
+    }
+
+
+
 }
 

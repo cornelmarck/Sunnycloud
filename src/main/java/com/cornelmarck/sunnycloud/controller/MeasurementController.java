@@ -1,37 +1,46 @@
 package com.cornelmarck.sunnycloud.controller;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter;
-import com.cornelmarck.sunnycloud.model.DateTimeConverter;
+import com.cornelmarck.sunnycloud.repository.DateTimeConverter;
 import com.cornelmarck.sunnycloud.model.Measurement;
 import com.cornelmarck.sunnycloud.repository.MeasurementRepository;
-import org.springframework.web.bind.annotation.*;
+import com.cornelmarck.sunnycloud.repository.SiteRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 public class MeasurementController {
-    private final MeasurementRepository repository;
-    private final DateTimeConverter converter;
-    private final LocalDateTime minTimestamp;
-    private final LocalDateTime maxTimestamp;
+    private final MeasurementRepository measurementRepository;
+    private final SiteRepository siteRepository;
+    private final DateTimeConverter dateTimeConverter;
 
-    public MeasurementController(MeasurementRepository repository, DateTimeConverter dateTimeConverter,
-                                 LocalDateTime minTimestamp, LocalDateTime maxTimestamp) {
-        this.repository = repository;
-        this.converter = dateTimeConverter;
-        this.minTimestamp = minTimestamp;
-        this.maxTimestamp = maxTimestamp;
+    public MeasurementController(MeasurementRepository measurementRepository, SiteRepository siteRepository, DateTimeConverter dateTimeConverter) {
+        this.measurementRepository = measurementRepository;
+        this.siteRepository = siteRepository;
+        this.dateTimeConverter = dateTimeConverter;
     }
 
     @GetMapping("/measurements/{siteId}")
     List<Measurement> allBySiteId(@PathVariable String siteId, @RequestParam Optional<String> from, @RequestParam Optional<String> to) {
-        LocalDateTime start = from.map(LocalDateTime::parse).orElse(minTimestamp);
-        LocalDateTime end = to.map(LocalDateTime::parse).orElse(maxTimestamp);
+        if (siteRepository.findById(siteId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found: " + siteId);
+        }
 
-        return repository.findAllBySiteIdAndTimestampBetween(siteId, start, end);
+        try {
+            return measurementRepository.findAllBySiteIdAndTimestampBetween(siteId, from, to);
+        }
+        catch (DateTimeParseException dateTimeParseException) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");
+        }
+
+
     }
-
 
 }

@@ -45,4 +45,8 @@ public class UserRepository {
                 .withExpressionAttributeValues(eavMap);
         return dynamoDBMapper.scan(User.class, scanExpression);
     }
+
+    public void save(User user) {
+        dynamoDBMapper.save(user);
+    }
 }

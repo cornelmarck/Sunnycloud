@@ -3,7 +3,6 @@ package com.cornelmarck.sunnycloud.repository;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.cornelmarck.sunnycloud.model.DateTimeConverter;
 import com.cornelmarck.sunnycloud.model.Measurement;
 import org.springframework.stereotype.Repository;
 
@@ -23,10 +22,10 @@ public class MeasurementRepository {
         this.dateTimeConverter = dateTimeConverter;
     }
 
-    public Optional<Measurement> findBySiteIdAndTimestamp(String siteId, LocalDateTime timestamp) {
+    public Optional<Measurement> findBySiteIdAndTimestamp(String siteId, String timestamp) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
         eavMap.put(":v1", new AttributeValue().withS(siteId));
-        eavMap.put(":v2", new AttributeValue().withS(dateTimeConverter.convert(timestamp)));
+        eavMap.put(":v2", new AttributeValue().withS(timestamp));
 
         DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
                 .withKeyConditionExpression("Id = :v1 and SortKey = :v2")
@@ -39,15 +38,52 @@ public class MeasurementRepository {
         return Optional.of(result.get(0));
     }
 
-    public List<Measurement> findAllBySiteIdAndTimestampBetween(String siteId, LocalDateTime from, LocalDateTime to) {
+    public List<Measurement> findAllBySiteIdAndTimestampBetween(String siteId, Optional<String> from, Optional<String> to) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
+        String start = from.orElseGet(dateTimeConverter::getMinTimestampString);
+        LocalDateTime end = to.map(dateTimeConverter::unconvert).orElse(dateTimeConverter.getMaxTimestamp());
+
         eavMap.put(":v1", new AttributeValue().withS(siteId));
-        eavMap.put(":v2", new AttributeValue().withS(dateTimeConverter.convert(from)));
-        eavMap.put(":v3", new AttributeValue().withS(dateTimeConverter.convert(to.minusNanos(1000000))));
+        eavMap.put(":v2", new AttributeValue().withS(start));
+        eavMap.put(":v3", new AttributeValue().withS(dateTimeConverter.convert(end.minusNanos(1000000))));
 
         DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
                 .withKeyConditionExpression("Id = :v1 and SortKey between :v2 and :v3")
                 .withExpressionAttributeValues(eavMap);
         return dynamoDBMapper.query(Measurement.class, queryExpression);
+    }
+
+    public Optional<Measurement> findEarliestBySiteId(String siteId) {
+        Map<String, AttributeValue> eavMap = new HashMap<>();
+        eavMap.put(":v1", new AttributeValue().withS(siteId));
+        eavMap.put(":v2", new AttributeValue().withS(dateTimeConverter.getMinTimestampString()));
+
+        DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
+                .withKeyConditionExpression("Id = :v1 and SortKey >= :v2")
+                .withExpressionAttributeValues(eavMap)
+                .withScanIndexForward(true)
+                .withLimit(1);
+        List<Measurement> found = dynamoDBMapper.query(Measurement.class, queryExpression);
+        if (found.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(found.get(0));
+    }
+
+    public Optional<Measurement> findLatestBySiteId(String siteId) {
+        Map<String, AttributeValue> eavMap = new HashMap<>();
+        eavMap.put(":v1", new AttributeValue().withS(siteId));
+        eavMap.put(":v2", new AttributeValue().withS(dateTimeConverter.getMaxTimestampString()));
+
+        DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
+                .withKeyConditionExpression("Id = :v1 and SortKey < :v2")
+                .withExpressionAttributeValues(eavMap)
+                .withScanIndexForward(false)
+                .withLimit(1);
+        List<Measurement> found = dynamoDBMapper.query(Measurement.class, queryExpression);
+        if (found.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(found.get(0));
     }
 }

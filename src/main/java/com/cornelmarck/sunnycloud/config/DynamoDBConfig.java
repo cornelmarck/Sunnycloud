@@ -8,12 +8,10 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
-import com.cornelmarck.sunnycloud.model.DateTimeConverter;
+import com.cornelmarck.sunnycloud.repository.DateTimeConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.time.LocalDateTime;
 
 @Configuration
 public class DynamoDBConfig {
@@ -47,14 +45,5 @@ public class DynamoDBConfig {
     @Bean
     public DateTimeConverter dateTimeConverter() {
         return new DateTimeConverter();
-    }
-
-    @Bean
-    public LocalDateTime minTimestamp() {
-        return LocalDateTime.parse("0000-01-01T00:00:00.000");
-    }
-    @Bean
-    public LocalDateTime maxTimestamp() {
-        return LocalDateTime.parse("9999-12-31T23:59:59.999");
     }
 }

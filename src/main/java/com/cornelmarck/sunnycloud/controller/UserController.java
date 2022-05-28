@@ -2,11 +2,9 @@ package com.cornelmarck.sunnycloud.controller;
 
 import com.cornelmarck.sunnycloud.model.User;
 import com.cornelmarck.sunnycloud.repository.UserRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class UserController {
@@ -16,15 +14,26 @@ public class UserController {
         this.repository = userRepository;
     }
 
-    @GetMapping("/users/{emailAddress}")
-    User one(@PathVariable String emailAddress) {
-        return repository.findByEmailAddress(emailAddress)
-                .orElseThrow(() -> new UserNotFoundException(emailAddress));
+    @GetMapping("/users/{id}")
+    User one(@PathVariable String id) {
+        return repository.findByEmailAddress(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + id));
     }
 
-    @GetMapping("/users")
-    List<User> all() {
-        return repository.findAll();
+    @PutMapping("/users/{id}")
+    public User replaceUser(@RequestBody User newUser, @PathVariable String id) {
+        return repository.findByEmailAddress(id)
+                .map(user -> {
+                    user.setName(newUser.getName());
+                    user.setMobilePhoneNumber(newUser.getMobilePhoneNumber());
+                    repository.save(user);
+                    return user;
+                })
+                .orElseGet(() -> {
+                    newUser.setEmailAddress(id);
+                    repository.save(newUser);
+                    return newUser;
+                });
     }
 
 

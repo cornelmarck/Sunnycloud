@@ -12,7 +12,9 @@ import com.cornelmarck.sunnycloud.model.Site;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Utils {
     private final AmazonDynamoDB amazonDynamoDB;
@@ -68,7 +70,7 @@ public class Utils {
     public void populateMainTable() {
         User user1 = new User();
         user1.setEmailAddress("ex1@hello.com");
-        user1.setName("Harry Style");
+        user1.setName("Harry Styles");
         user1.setMobilePhoneNumber("1234 5678");
         User user2 = new User();
         user2.setEmailAddress("ex2@hello.com");
