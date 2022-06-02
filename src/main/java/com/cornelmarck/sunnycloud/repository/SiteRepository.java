@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.cornelmarck.sunnycloud.model.Site;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -13,12 +14,9 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class SiteRepository {
     private final DynamoDBMapper dynamoDBMapper;
-
-    public SiteRepository(DynamoDBMapper dynamoDBMapper) {
-        this.dynamoDBMapper = dynamoDBMapper;
-    }
 
     public Optional<Site> findById(String siteId) {
         Map<String, AttributeValue> eavMap = new HashMap<>();

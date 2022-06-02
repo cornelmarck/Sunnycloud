@@ -4,23 +4,18 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.cornelmarck.sunnycloud.model.Measurement;
+import com.cornelmarck.sunnycloud.config.DynamoDBDateTimeConverter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
+@RequiredArgsConstructor
 public class MeasurementRepository {
     private final DynamoDBMapper dynamoDBMapper;
-    private final DateTimeConverter dateTimeConverter;
-
-    public MeasurementRepository(DynamoDBMapper dynamoDBMapper, DateTimeConverter dateTimeConverter) {
-        this.dynamoDBMapper = dynamoDBMapper;
-        this.dateTimeConverter = dateTimeConverter;
-    }
+    private final DynamoDBDateTimeConverter dynamoDBDateTimeConverter;
 
     public Optional<Measurement> findBySiteIdAndTimestamp(String siteId, String timestamp) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
@@ -40,12 +35,12 @@ public class MeasurementRepository {
 
     public List<Measurement> findAllBySiteIdAndTimestampBetween(String siteId, Optional<String> from, Optional<String> to) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
-        String start = from.orElseGet(dateTimeConverter::getMinTimestampString);
-        LocalDateTime end = to.map(dateTimeConverter::unconvert).orElse(dateTimeConverter.getMaxTimestamp());
+        String start = from.orElseGet(dynamoDBDateTimeConverter::getMinTimestampString);
+        LocalDateTime end = to.map(dynamoDBDateTimeConverter::unconvert).orElse(dynamoDBDateTimeConverter.getMaxTimestamp());
 
         eavMap.put(":v1", new AttributeValue().withS(siteId));
         eavMap.put(":v2", new AttributeValue().withS(start));
-        eavMap.put(":v3", new AttributeValue().withS(dateTimeConverter.convert(end.minusNanos(1000000))));
+        eavMap.put(":v3", new AttributeValue().withS(dynamoDBDateTimeConverter.convert(end.minusSeconds(1))));
 
         DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
                 .withKeyConditionExpression("Id = :v1 and SortKey between :v2 and :v3")
@@ -56,7 +51,7 @@ public class MeasurementRepository {
     public Optional<Measurement> findEarliestBySiteId(String siteId) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
         eavMap.put(":v1", new AttributeValue().withS(siteId));
-        eavMap.put(":v2", new AttributeValue().withS(dateTimeConverter.getMinTimestampString()));
+        eavMap.put(":v2", new AttributeValue().withS(dynamoDBDateTimeConverter.getMinTimestampString()));
 
         DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
                 .withKeyConditionExpression("Id = :v1 and SortKey >= :v2")
@@ -73,7 +68,7 @@ public class MeasurementRepository {
     public Optional<Measurement> findLatestBySiteId(String siteId) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
         eavMap.put(":v1", new AttributeValue().withS(siteId));
-        eavMap.put(":v2", new AttributeValue().withS(dateTimeConverter.getMaxTimestampString()));
+        eavMap.put(":v2", new AttributeValue().withS(dynamoDBDateTimeConverter.getMaxTimestampString()));
 
         DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
                 .withKeyConditionExpression("Id = :v1 and SortKey < :v2")
@@ -86,4 +81,13 @@ public class MeasurementRepository {
         }
         return Optional.of(found.get(0));
     }
+
+    public void batchSave(Collection<Measurement> measurements) {
+        dynamoDBMapper.batchSave(measurements);
+    }
+
+    public void save(Measurement measurement) {
+        dynamoDBMapper.save(measurement);
+    }
+
 }

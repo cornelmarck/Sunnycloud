@@ -2,7 +2,7 @@ package com.cornelmarck.sunnycloud;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.cornelmarck.sunnycloud.repository.DateTimeConverter;
+import com.cornelmarck.sunnycloud.config.DynamoDBDateTimeConverter;
 import com.cornelmarck.sunnycloud.model.Measurement;
 import com.cornelmarck.sunnycloud.repository.MeasurementRepository;
 import org.junit.jupiter.api.Assertions;
@@ -26,7 +26,7 @@ public class MeasurementIntegrationTest {
     @Autowired
     MeasurementRepository measurementRepository;
     @Autowired
-    DateTimeConverter dateTimeConverter;
+    DynamoDBDateTimeConverter dynamoDBDateTimeConverter;
 
     @BeforeEach
     public void init() throws Exception {
@@ -60,7 +60,7 @@ public class MeasurementIntegrationTest {
         List<Measurement> result = measurementRepository.findAllBySiteIdAndTimestampBetween(
                 "07dd6a84-845e-474d-8c87-a4a3ef21c09e",
                 Optional.of("0000-01-01T00:00:00.000"),
-                Optional.of(dateTimeConverter.convert(LocalDateTime.now()))
+                Optional.of(dynamoDBDateTimeConverter.convert(LocalDateTime.now()))
         );
         Assertions.assertEquals(12, result.size());
     }
@@ -68,8 +68,8 @@ public class MeasurementIntegrationTest {
     @Test
     public void findWithMinMax() {
         List<Measurement> result = measurementRepository.findAllBySiteIdAndTimestampBetween(
-                "07dd6a84-845e-474d-8c87-a4a3ef21c09e", Optional.of(dateTimeConverter.getMinTimestampString()),
-                Optional.of(dateTimeConverter.getMaxTimestampString()));
+                "07dd6a84-845e-474d-8c87-a4a3ef21c09e", Optional.of(dynamoDBDateTimeConverter.getMinTimestampString()),
+                Optional.of(dynamoDBDateTimeConverter.getMaxTimestampString()));
         Assertions.assertEquals(12, result.size());
     }
 

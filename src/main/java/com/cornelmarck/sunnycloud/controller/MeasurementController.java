@@ -1,6 +1,6 @@
 package com.cornelmarck.sunnycloud.controller;
 
-import com.cornelmarck.sunnycloud.repository.DateTimeConverter;
+import com.cornelmarck.sunnycloud.config.DynamoDBDateTimeConverter;
 import com.cornelmarck.sunnycloud.model.Measurement;
 import com.cornelmarck.sunnycloud.repository.MeasurementRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
@@ -19,12 +19,12 @@ import java.util.Optional;
 public class MeasurementController {
     private final MeasurementRepository measurementRepository;
     private final SiteRepository siteRepository;
-    private final DateTimeConverter dateTimeConverter;
+    private final DynamoDBDateTimeConverter dynamoDBDateTimeConverter;
 
-    public MeasurementController(MeasurementRepository measurementRepository, SiteRepository siteRepository, DateTimeConverter dateTimeConverter) {
+    public MeasurementController(MeasurementRepository measurementRepository, SiteRepository siteRepository, DynamoDBDateTimeConverter dynamoDBDateTimeConverter) {
         this.measurementRepository = measurementRepository;
         this.siteRepository = siteRepository;
-        this.dateTimeConverter = dateTimeConverter;
+        this.dynamoDBDateTimeConverter = dynamoDBDateTimeConverter;
     }
 
     @GetMapping("/measurements/{siteId}")

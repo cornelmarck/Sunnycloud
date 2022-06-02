@@ -4,7 +4,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Map;
 import java.util.UUID;
 
 @DynamoDBTable(tableName="Main")

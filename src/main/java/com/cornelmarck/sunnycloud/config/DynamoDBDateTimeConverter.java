@@ -1,16 +1,16 @@
-package com.cornelmarck.sunnycloud.repository;
+package com.cornelmarck.sunnycloud.config;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class DateTimeConverter implements DynamoDBTypeConverter<String, LocalDateTime> {
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
-    private static final LocalDateTime minTimestamp = LocalDateTime.parse("1970-01-01T00:00:00.000");
-    private static final LocalDateTime maxTimestamp = LocalDateTime.parse("9999-12-31T23:59:59.999");
+public class DynamoDBDateTimeConverter implements DynamoDBTypeConverter<String, LocalDateTime> {
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    private static final LocalDateTime minTimestamp = LocalDateTime.parse("1970-01-01T00:00:00");
+    private static final LocalDateTime maxTimestamp = LocalDateTime.parse("9999-12-31T23:59:59");
 
-    public DateTimeConverter() {}
+    public DynamoDBDateTimeConverter() {}
 
     @Override
     public String convert(LocalDateTime dateTime) {
