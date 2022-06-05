@@ -3,7 +3,7 @@ package com.cornelmarck.sunnycloud.repository;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.cornelmarck.sunnycloud.model.Measurement;
+import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.config.DynamoDBDateTimeConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -13,19 +13,19 @@ import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
-public class MeasurementRepository {
+public class PowerRepository {
     private final DynamoDBMapper dynamoDBMapper;
     private final DynamoDBDateTimeConverter dynamoDBDateTimeConverter;
 
-    public Optional<Measurement> findBySiteIdAndTimestamp(String siteId, String timestamp) {
+    public Optional<Power> findBySiteIdAndTimestamp(String siteId, String timestamp) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
         eavMap.put(":v1", new AttributeValue().withS(siteId));
         eavMap.put(":v2", new AttributeValue().withS(timestamp));
 
-        DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
+        DynamoDBQueryExpression<Power> queryExpression = new DynamoDBQueryExpression<Power>()
                 .withKeyConditionExpression("Id = :v1 and SortKey = :v2")
                 .withExpressionAttributeValues(eavMap);
-        List<Measurement> result = dynamoDBMapper.query(Measurement.class, queryExpression);
+        List<Power> result = dynamoDBMapper.query(Power.class, queryExpression);
 
         if (result.isEmpty()) {
             return Optional.empty();
@@ -33,7 +33,7 @@ public class MeasurementRepository {
         return Optional.of(result.get(0));
     }
 
-    public List<Measurement> findAllBySiteIdAndTimestampBetween(String siteId, Optional<String> from, Optional<String> to) {
+    public List<Power> findAllBySiteIdAndTimestampBetween(String siteId, Optional<String> from, Optional<String> to) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
         String start = from.orElseGet(dynamoDBDateTimeConverter::getMinTimestampString);
         LocalDateTime end = to.map(dynamoDBDateTimeConverter::unconvert).orElse(dynamoDBDateTimeConverter.getMaxTimestamp());
@@ -42,52 +42,52 @@ public class MeasurementRepository {
         eavMap.put(":v2", new AttributeValue().withS(start));
         eavMap.put(":v3", new AttributeValue().withS(dynamoDBDateTimeConverter.convert(end.minusSeconds(1))));
 
-        DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
+        DynamoDBQueryExpression<Power> queryExpression = new DynamoDBQueryExpression<Power>()
                 .withKeyConditionExpression("Id = :v1 and SortKey between :v2 and :v3")
                 .withExpressionAttributeValues(eavMap);
-        return dynamoDBMapper.query(Measurement.class, queryExpression);
+        return dynamoDBMapper.query(Power.class, queryExpression);
     }
 
-    public Optional<Measurement> findEarliestBySiteId(String siteId) {
+    public Optional<Power> findEarliestBySiteId(String siteId) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
         eavMap.put(":v1", new AttributeValue().withS(siteId));
         eavMap.put(":v2", new AttributeValue().withS(dynamoDBDateTimeConverter.getMinTimestampString()));
 
-        DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
+        DynamoDBQueryExpression<Power> queryExpression = new DynamoDBQueryExpression<Power>()
                 .withKeyConditionExpression("Id = :v1 and SortKey >= :v2")
                 .withExpressionAttributeValues(eavMap)
                 .withScanIndexForward(true)
                 .withLimit(1);
-        List<Measurement> found = dynamoDBMapper.query(Measurement.class, queryExpression);
+        List<Power> found = dynamoDBMapper.query(Power.class, queryExpression);
         if (found.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(found.get(0));
     }
 
-    public Optional<Measurement> findLatestBySiteId(String siteId) {
+    public Optional<Power> findLatestBySiteId(String siteId) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
         eavMap.put(":v1", new AttributeValue().withS(siteId));
         eavMap.put(":v2", new AttributeValue().withS(dynamoDBDateTimeConverter.getMaxTimestampString()));
 
-        DynamoDBQueryExpression<Measurement> queryExpression = new DynamoDBQueryExpression<Measurement>()
+        DynamoDBQueryExpression<Power> queryExpression = new DynamoDBQueryExpression<Power>()
                 .withKeyConditionExpression("Id = :v1 and SortKey < :v2")
                 .withExpressionAttributeValues(eavMap)
                 .withScanIndexForward(false)
                 .withLimit(1);
-        List<Measurement> found = dynamoDBMapper.query(Measurement.class, queryExpression);
+        List<Power> found = dynamoDBMapper.query(Power.class, queryExpression);
         if (found.isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(found.get(0));
     }
 
-    public void batchSave(Collection<Measurement> measurements) {
-        dynamoDBMapper.batchSave(measurements);
+    public void batchSave(Collection<Power> powerList) {
+        dynamoDBMapper.batchSave(powerList);
     }
 
-    public void save(Measurement measurement) {
-        dynamoDBMapper.save(measurement);
+    public void save(Power power) {
+        dynamoDBMapper.save(power);
     }
 
 }

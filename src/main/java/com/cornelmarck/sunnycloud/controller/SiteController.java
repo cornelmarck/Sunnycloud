@@ -1,9 +1,9 @@
 package com.cornelmarck.sunnycloud.controller;
 
 import com.cornelmarck.sunnycloud.config.DynamoDBDateTimeConverter;
-import com.cornelmarck.sunnycloud.model.Measurement;
+import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.model.Site;
-import com.cornelmarck.sunnycloud.repository.MeasurementRepository;
+import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @RestController
 public class SiteController {
     private final SiteRepository siteRepository;
-    private final MeasurementRepository measurementRepository;
+    private final PowerRepository powerRepository;
     private final DynamoDBDateTimeConverter dynamoDBDateTimeConverter;
 
     //Get all sites filtering on owner
@@ -43,14 +43,14 @@ public class SiteController {
         return newSite;
     }
 
-    @GetMapping("/sites/{siteId}/measurements")
-    List<Measurement> allBySiteId(@PathVariable String siteId, @RequestParam Optional<String> from, @RequestParam Optional<String> to) {
+    @GetMapping("/sites/{siteId}/power")
+    List<Power> allBySiteId(@PathVariable String siteId, @RequestParam Optional<String> from, @RequestParam Optional<String> to) {
         if (siteRepository.findById(siteId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found: " + siteId);
         }
 
         try {
-            return measurementRepository.findAllBySiteIdAndTimestampBetween(siteId, from, to);
+            return powerRepository.findAllBySiteIdAndTimestampBetween(siteId, from, to);
         }
         catch (DateTimeParseException dateTimeParseException) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");

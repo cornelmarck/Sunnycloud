@@ -2,20 +2,15 @@ package com.cornelmarck.sunnycloud;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.cornelmarck.sunnycloud.model.Measurement;
 import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.service.SolaredgeSyncApi;
 import com.cornelmarck.sunnycloud.service.SolaredgeSyncApiService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:test.properties")

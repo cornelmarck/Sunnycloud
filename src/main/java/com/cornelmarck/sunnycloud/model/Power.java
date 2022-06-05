@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @DynamoDBTable(tableName="Main")
-public class Measurement {
+public class Power {
     @Getter @Setter
     @DynamoDBHashKey(attributeName = "Id")
     @JsonIgnore
@@ -34,6 +34,6 @@ public class Measurement {
     @Getter @Setter @DynamoDBAttribute(attributeName = "PowerOutput")
     private double powerOutput;
 
-    public Measurement() {}
+    public Power() {}
 
 }

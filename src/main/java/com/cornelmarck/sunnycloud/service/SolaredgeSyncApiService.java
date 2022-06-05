@@ -3,8 +3,8 @@ package com.cornelmarck.sunnycloud.service;
 import com.cornelmarck.sunnycloud.dto.SolaredgeDataPeriodDto;
 import com.cornelmarck.sunnycloud.dto.SolaredgePowerDto;
 import com.cornelmarck.sunnycloud.exception.SolaredgeApiException;
-import com.cornelmarck.sunnycloud.model.Measurement;
-import com.cornelmarck.sunnycloud.repository.MeasurementRepository;
+import com.cornelmarck.sunnycloud.model.Power;
+import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.util.TimeRange;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -31,12 +31,12 @@ public class SolaredgeSyncApiService {
     private final RestTemplate restTemplate;
     private final String solarEdgeEndpoint;
     private final ObjectMapper objectMapper;
-    private final MeasurementRepository measurementRepository;
+    private final PowerRepository powerRepository;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final Duration maxPowerFetchPeriod = Duration.of(28, ChronoUnit.DAYS);
 
     public void update(SolaredgeSyncApi syncApi) throws JsonProcessingException {
-        Optional<Measurement> latest = measurementRepository.findLatestBySiteId(syncApi.getSiteId());
+        Optional<Power> latest = powerRepository.findLatestBySiteId(syncApi.getSiteId());
         if (latest.isPresent()) {
             updateBetween(syncApi, latest.get().getTimestamp().plusSeconds(1), LocalDateTime.now());
         }
@@ -49,19 +49,19 @@ public class SolaredgeSyncApiService {
     public void updateBetween(SolaredgeSyncApi syncApi, LocalDateTime from, LocalDateTime to) {
         TimeRange timeRange = new TimeRange(from, to);
         for (TimeRange range : timeRange.splitToNonEmpty(maxPowerFetchPeriod)) {
-            List<Measurement> measurements = getPowerBetween(syncApi, range.getFrom(), range.getTo());
-            measurementRepository.batchSave(measurements);
+            List<Power> measurements = getPowerBetween(syncApi, range.getFrom(), range.getTo());
+            powerRepository.batchSave(measurements);
         }
     }
 
-    private List<Measurement> getPowerBetween(SolaredgeSyncApi syncApi, LocalDateTime from, LocalDateTime to) {
+    private List<Power> getPowerBetween(SolaredgeSyncApi syncApi, LocalDateTime from, LocalDateTime to) {
         try {
             String requestURL = getPowerURL(syncApi, from, to);
             ResponseEntity<JsonNode> entity = restTemplate.getForEntity(requestURL, JsonNode.class);
             JsonNode powerListNode = entity.getBody().get("power").get("values");
             ObjectReader objectReader = objectMapper.readerFor(new TypeReference<List<SolaredgePowerDto>>(){});
             List<SolaredgePowerDto> powerDtoList = objectReader.readValue(powerListNode);
-            List<Measurement> measurements = powerDtoList.stream().map(SolaredgePowerDto::toMeasurement).collect(Collectors.toList());
+            List<Power> measurements = powerDtoList.stream().map(SolaredgePowerDto::toPower).collect(Collectors.toList());
             measurements.forEach((x) -> x.setSiteId(syncApi.getSiteId()));
             return measurements;
         }

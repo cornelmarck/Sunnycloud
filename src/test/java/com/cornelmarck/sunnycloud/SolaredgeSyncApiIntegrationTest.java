@@ -46,8 +46,6 @@ public class SolaredgeSyncApiIntegrationTest {
         return;
     }
 
-
-
     public void populate() {
         Site site = new Site();
         site.setName("Test site 1");
