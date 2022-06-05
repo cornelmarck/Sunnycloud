@@ -40,7 +40,7 @@ public class PowerIntegrationTest {
     public void findBySiteIdAndTimestamp() {
         Optional<Power> found = powerRepository.findBySiteIdAndTimestamp(
                 "07dd6a84-845e-474d-8c87-a4a3ef21c09e",
-                "2021-08-05T10:12:00.000"
+                "2021-08-05T10:12:00"
         );
         Assertions.assertTrue(found.isPresent());
         Assertions.assertEquals(4.3, found.get().getPowerOutput());
@@ -50,7 +50,7 @@ public class PowerIntegrationTest {
     public void findAllBySiteIdAndTimestampBetween() {
         List<Power> result = powerRepository.findAllBySiteIdAndTimestampBetween(
                 "07dd6a84-845e-474d-8c87-a4a3ef21c09e",
-                Optional.of("2021-08-05T10:22:00.000"), Optional.of("2021-08-05T10:52:00.000")
+                Optional.of("2021-08-05T10:22:00"), Optional.of("2021-08-05T10:52:00")
         );
         Assertions.assertEquals(3, result.size());
     }
@@ -59,7 +59,7 @@ public class PowerIntegrationTest {
     public void findAll() {
         List<Power> result = powerRepository.findAllBySiteIdAndTimestampBetween(
                 "07dd6a84-845e-474d-8c87-a4a3ef21c09e",
-                Optional.of("0000-01-01T00:00:00.000"),
+                Optional.of("0000-01-01T00:00:00"),
                 Optional.of(dynamoDBDateTimeConverter.convert(LocalDateTime.now()))
         );
         Assertions.assertEquals(12, result.size());
