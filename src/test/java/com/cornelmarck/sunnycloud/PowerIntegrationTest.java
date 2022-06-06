@@ -2,7 +2,7 @@ package com.cornelmarck.sunnycloud;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.cornelmarck.sunnycloud.config.DynamoDBDateTimeConverter;
+import com.cornelmarck.sunnycloud.config.DynamoDBInstantConverter;
 import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import org.junit.jupiter.api.Assertions;
@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +26,7 @@ public class PowerIntegrationTest {
     @Autowired
     PowerRepository powerRepository;
     @Autowired
-    DynamoDBDateTimeConverter dynamoDBDateTimeConverter;
+    DynamoDBInstantConverter dynamoDBInstantConverter;
 
     @BeforeEach
     public void init() throws Exception {
@@ -40,7 +40,7 @@ public class PowerIntegrationTest {
     public void findBySiteIdAndTimestamp() {
         Optional<Power> found = powerRepository.findBySiteIdAndTimestamp(
                 "07dd6a84-845e-474d-8c87-a4a3ef21c09e",
-                "2021-08-05T10:12:00"
+                Instant.parse("2021-08-05T10:12:00Z")
         );
         Assertions.assertTrue(found.isPresent());
         Assertions.assertEquals(4.3, found.get().getPowerOutput());
@@ -50,7 +50,7 @@ public class PowerIntegrationTest {
     public void findAllBySiteIdAndTimestampBetween() {
         List<Power> result = powerRepository.findAllBySiteIdAndTimestampBetween(
                 "07dd6a84-845e-474d-8c87-a4a3ef21c09e",
-                Optional.of("2021-08-05T10:22:00"), Optional.of("2021-08-05T10:52:00")
+                Instant.parse("2021-08-05T10:22:00"), Instant.parse("2021-08-05T10:52:00Z")
         );
         Assertions.assertEquals(3, result.size());
     }
@@ -59,8 +59,8 @@ public class PowerIntegrationTest {
     public void findAll() {
         List<Power> result = powerRepository.findAllBySiteIdAndTimestampBetween(
                 "07dd6a84-845e-474d-8c87-a4a3ef21c09e",
-                Optional.of("0000-01-01T00:00:00"),
-                Optional.of(dynamoDBDateTimeConverter.convert(LocalDateTime.now()))
+                Instant.parse("0000-01-01T00:00:00Z"),
+                Instant.parse(dynamoDBInstantConverter.convert(Instant.now()))
         );
         Assertions.assertEquals(12, result.size());
     }
@@ -68,8 +68,7 @@ public class PowerIntegrationTest {
     @Test
     public void findWithMinMax() {
         List<Power> result = powerRepository.findAllBySiteIdAndTimestampBetween(
-                "07dd6a84-845e-474d-8c87-a4a3ef21c09e", Optional.of(dynamoDBDateTimeConverter.getMinTimestampString()),
-                Optional.of(dynamoDBDateTimeConverter.getMaxTimestampString()));
+                "07dd6a84-845e-474d-8c87-a4a3ef21c09e", DynamoDBInstantConverter.MIN, DynamoDBInstantConverter.MAX);
         Assertions.assertEquals(12, result.size());
     }
 

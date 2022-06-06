@@ -56,6 +56,7 @@ public class SolaredgeSiteDto {
         site.setId(Long.toString(id));
         site.setName(name);
         site.setPeakPower(peakPower * 1E3);
+        site.setTimeZone(location.timeZone);
 
         Location other = new Location();
         other.setCountry(location.country);
@@ -63,8 +64,7 @@ public class SolaredgeSiteDto {
         other.setAddress1(location.address);
         other.setAddress2(location.address2);
         other.setZipCode(location.zip);
-        other.setCountryCode(location.countryCode);
-        other.setTimeZone(location.timeZone);
+
         site.setLocation(other);
 
         return site;

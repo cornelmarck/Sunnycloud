@@ -43,8 +43,8 @@ public class DynamoDBConfig {
     }
 
     @Bean
-    public DynamoDBDateTimeConverter dateTimeConverter() {
-        return new DynamoDBDateTimeConverter();
+    public DynamoDBInstantConverter instantConverter() {
+        return new DynamoDBInstantConverter();
     }
 
     @Bean

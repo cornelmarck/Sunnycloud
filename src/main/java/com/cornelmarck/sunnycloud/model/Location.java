@@ -17,10 +17,6 @@ public class Location {
     private String address2;
     @Getter @Setter @DynamoDBAttribute(attributeName = "ZipCode")
     private String zipCode;
-    @Getter @Setter @DynamoDBAttribute(attributeName = "CountryCode")
-    private String countryCode;
-    @Getter @Setter @DynamoDBAttribute(attributeName = "TimeZone")
-    private String timeZone;
     @Getter @Setter @DynamoDBAttribute(attributeName = "Longitude")
     private double longitude;
     @Getter @Setter @DynamoDBAttribute(attributeName = "Latitude")

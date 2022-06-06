@@ -16,6 +16,8 @@ public class Site {
     private String name;
     @Getter @Setter @DynamoDBIndexHashKey(globalSecondaryIndexName = "SiteOwnerIndex", attributeName = "OwnerId")
     private String ownerId;
+    @Getter @Setter @DynamoDBAttribute(attributeName = "TimeZone")
+    private String timeZone;
     @Getter @Setter @DynamoDBAttribute(attributeName = "Location")
     private Location location;
     @Getter @Setter @DynamoDBAttribute(attributeName = "PeakPower")

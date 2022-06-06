@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class SolaredgePowerDto {
@@ -14,9 +16,11 @@ public class SolaredgePowerDto {
     private double value;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public Power toPower() {
+    public Power toPower(String siteId, ZoneId originalZoneId) {
         Power power = new Power();
-        power.setTimestamp(LocalDateTime.parse(date, formatter));
+        power.setSiteId(siteId);
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(LocalDateTime.parse(date, formatter), originalZoneId);
+        power.setTimestamp(zonedDateTime.toInstant());
         power.setPowerOutput(value);
         return power;
     }

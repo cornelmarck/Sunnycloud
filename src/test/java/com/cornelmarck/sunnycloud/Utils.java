@@ -10,6 +10,7 @@ import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.model.User;
 import com.cornelmarck.sunnycloud.model.Site;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,8 +95,7 @@ public class Utils {
         site.getLocation().setAddress1("34 Windsor Drive");
         site.getLocation().setZipCode("W3 5CX");
         site.getLocation().setCountry("United Kingdom");
-        site.getLocation().setCountryCode("UK");
-        site.getLocation().setTimeZone("UTC");
+        site.setTimeZone("UTC");
         dynamoDBMapper.save(site);
         Site site1 = site;
 
@@ -113,8 +113,7 @@ public class Utils {
         site.getLocation().setAddress2("Uxbridge Road");
         site.getLocation().setZipCode("SW92 AB1");
         site.getLocation().setCountry("United Kingdom");
-        site.getLocation().setCountryCode("UK");
-        site.getLocation().setTimeZone("UTC");
+        site.setTimeZone("UTC");
         dynamoDBMapper.save(site);
         Site site2 = site;
 
@@ -131,8 +130,7 @@ public class Utils {
         site.getLocation().setAddress1("45 Small Heath");
         site.getLocation().setZipCode("BEA 5WS");
         site.getLocation().setCountry("United Kingdom");
-        site.getLocation().setCountryCode("UK");
-        site.getLocation().setTimeZone("UTC");
+        site.setTimeZone("CET");
         dynamoDBMapper.save(site);
         Site site3 = site;
 
@@ -149,40 +147,39 @@ public class Utils {
         site.getLocation().setAddress1("Friedrichsstraße 45");
         site.getLocation().setZipCode("ASDF 23");
         site.getLocation().setCountry("Germany");
-        site.getLocation().setCountryCode("DE");
-        site.getLocation().setTimeZone("UTC+1");
+        site.setTimeZone("CET");
         dynamoDBMapper.save(site);
         Site site4 = site;
 
-        LocalDateTime base = LocalDateTime.parse("2021-08-05T10:12:00.000");
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(0), 4.3));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(10), 3.3));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(20), 4.6));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(30), 5.1));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(40), 2.8));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(50), 0.0));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(1), 4.31));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(10), 3.31));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(20), 4.61));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(30), 5.11));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(40), 2.81));
-        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(50), 0.01));
+        Instant base = Instant.parse("2021-08-05T10:12:00.000");
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(0), 4.3));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(10), 3.3));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(20), 4.6));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(30), 5.1));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(40), 2.8));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusMinutes(50), 0.0));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(1), 4.31));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(10), 3.31));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(20), 4.61));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(30), 5.11));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(40), 2.81));
+//        dynamoDBMapper.save(new Power(site1.getId(), base.plusHours(50), 0.01));
 
-        base = LocalDateTime.parse("2021-08-05T10:00:00.000");
-        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(0), 2));
-        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(5), 3));
-        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(8), 1.3));
-        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(10), 1.2));
-        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(13), 1.1));
-        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(25), 0.9));
+        base = Instant.parse("2021-08-05T10:00:00.000");
+//        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(0), 2));
+//        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(5), 3));
+//        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(8), 1.3));
+//        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(10), 1.2));
+//        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(13), 1.1));
+//        dynamoDBMapper.save(new Power(site2.getId(), base.plusMinutes(25), 0.9));
 
-        base = LocalDateTime.parse("2021-08-05T10:12:00.000");
-        dynamoDBMapper.save(new Power(site3.getId(), base.plusMinutes(0), 7.3));
-        dynamoDBMapper.save(new Power(site3.getId(), base.plusMinutes(10), 4.3));
+        base = Instant.parse("2021-08-05T10:12:00.000");
+//        dynamoDBMapper.save(new Power(site3.getId(), base.plusMinutes(0), 7.3));
+//        dynamoDBMapper.save(new Power(site3.getId(), base.plusMinutes(10), 4.3));
 
-        base = LocalDateTime.parse("2014-02-28T13:08:10");
-        dynamoDBMapper.save(new Power(site4.getId(), base.plusMinutes(0), 4.3));
-        dynamoDBMapper.save(new Power(site4.getId(), base.plusDays(10), 8.3));
-        dynamoDBMapper.save(new Power(site4.getId(), base.plusDays(8), 0.1));
+        base = Instant.parse("2014-02-28T13:08:10");
+//        dynamoDBMapper.save(new Power(site4.getId(), base.plusMinutes(0), 4.3));
+//        dynamoDBMapper.save(new Power(site4.getId(), base.plusDays(10), 8.3));
+//        dynamoDBMapper.save(new Power(site4.getId(), base.plusDays(8), 0.1));
     }
 }
