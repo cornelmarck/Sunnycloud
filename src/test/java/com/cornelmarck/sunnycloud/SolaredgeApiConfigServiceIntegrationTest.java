@@ -3,8 +3,8 @@ package com.cornelmarck.sunnycloud;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.cornelmarck.sunnycloud.model.Site;
-import com.cornelmarck.sunnycloud.model.SolaredgeApiConfig;
-import com.cornelmarck.sunnycloud.service.SolaredgeSyncApiService;
+import com.cornelmarck.sunnycloud.service.SolaredgeApiConfig;
+import com.cornelmarck.sunnycloud.service.SolaredgeApiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class SolaredgeApiConfigServiceIntegrationTest {
     @Autowired
     private AmazonDynamoDB amazonDynamoDB;
     @Autowired
-    private SolaredgeSyncApiService solaredgeService;
+    private SolaredgeApiService solaredgeService;
     @Value("${solaredge.test.apikey}")
     private String apikey;
     @Value("${solaredge.test.siteid}")
@@ -38,8 +38,6 @@ public class SolaredgeApiConfigServiceIntegrationTest {
     public void getSyncService() {
 
     }
-
-
 
     public void populate() {
         Site site = new Site();

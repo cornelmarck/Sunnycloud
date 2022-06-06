@@ -2,7 +2,7 @@ package com.cornelmarck.sunnycloud;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.cornelmarck.sunnycloud.config.DynamoDBInstantConverter;
+import com.cornelmarck.sunnycloud.util.DynamoDBInstantConverter;
 import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import org.junit.jupiter.api.Assertions;

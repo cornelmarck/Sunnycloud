@@ -1,11 +1,12 @@
 package com.cornelmarck.sunnycloud.controller;
 
-import com.cornelmarck.sunnycloud.config.DynamoDBInstantConverter;
+import com.cornelmarck.sunnycloud.dto.DataPeriodDto;
 import com.cornelmarck.sunnycloud.dto.PowerDto;
 import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
-import com.cornelmarck.sunnycloud.service.PowerService;
+import com.cornelmarck.sunnycloud.service.SiteService;
+import com.cornelmarck.sunnycloud.util.DynamoDBInstantConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class SiteController {
     private final SiteRepository siteRepository;
     private final PowerRepository powerRepository;
     private final DynamoDBInstantConverter dynamoDBInstantConverter;
-    private final PowerService powerService;
+    private final SiteService siteService;
 
     //Get all sites filtering on owner
     @GetMapping("/sites")
@@ -52,10 +53,15 @@ public class SiteController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found: " + siteId);
         }
         try {
-            return powerService.getBetweenLocalDateTime(siteId, LocalDateTime.parse(from), LocalDateTime.parse(to));
+            return siteService.getBetweenLocalDateTime(siteId, LocalDateTime.parse(from), LocalDateTime.parse(to));
         }
         catch (DateTimeParseException dateTimeParseException) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");
         }
+    }
+
+    @GetMapping("/sites/{siteId}/dataPeriod")
+    DataPeriodDto dataPeriod(@PathVariable String siteId) {
+        return siteService.getDataPeriod(siteId);
     }
 }

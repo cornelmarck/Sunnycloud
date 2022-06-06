@@ -3,7 +3,7 @@ package com.cornelmarck.sunnycloud.repository;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.cornelmarck.sunnycloud.model.SolaredgeApiConfig;
+import com.cornelmarck.sunnycloud.service.SolaredgeApiConfig;
 import com.cornelmarck.sunnycloud.service.SyncApiType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class SyncApiRepository {
+public class ApiConfigRepository {
     private final DynamoDBMapper dynamoDBMapper;
 
     public List<SolaredgeApiConfig> findAll() {

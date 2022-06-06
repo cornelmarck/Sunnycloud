@@ -1,4 +1,4 @@
-package com.cornelmarck.sunnycloud.config;
+package com.cornelmarck.sunnycloud.util;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter;
 

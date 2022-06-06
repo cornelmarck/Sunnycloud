@@ -59,8 +59,5 @@ public class SiteRepository {
     public void insert(Site newSite) {
         dynamoDBMapper.save(newSite);
     }
-
-
-
 }
 

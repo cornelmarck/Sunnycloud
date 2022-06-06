@@ -1,7 +1,7 @@
 package com.cornelmarck.sunnycloud.model;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
-import com.cornelmarck.sunnycloud.config.DynamoDBInstantConverter;
+import com.cornelmarck.sunnycloud.util.DynamoDBInstantConverter;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
