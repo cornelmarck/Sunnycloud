@@ -8,6 +8,7 @@ import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
 import com.cornelmarck.sunnycloud.util.DynamoDBInstantConverter;
+import com.cornelmarck.sunnycloud.util.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,8 @@ public class SiteService {
 
     public List<PowerDto> getBetweenLocalDateTime(String siteId, LocalDateTime from, LocalDateTime to) {
         ZoneId zoneId = getTimeZoneId(siteId);
-        List<Power> powerList = powerRepository.findAllBySiteIdAndTimestampBetween(siteId, getInstant(from, zoneId), getInstant(to, zoneId));
+        List<Power> powerList = powerRepository.findAllBySiteIdAndTimestampBetween(
+                siteId, TimeUtils.toInstant(from, zoneId), TimeUtils.toInstant(to, zoneId));
         return powerList.stream()
                 .map(x -> PowerDto.fromPower(x, zoneId))
                 .collect(Collectors.toList());
@@ -60,8 +62,5 @@ public class SiteService {
         return new DataPeriodDto(begin.atZone(zone).toLocalDateTime(), end.atZone(zone).toLocalDateTime());
     }
 
-    private Instant getInstant(LocalDateTime timestamp, ZoneId zoneId) {
-        ZoneOffset offset = zoneId.getRules().getOffset(timestamp);
-        return timestamp.toInstant(offset);
-    }
+
 }

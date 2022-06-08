@@ -43,7 +43,7 @@ public class SiteController {
 
     @PostMapping("/sites")
     public Site create(@RequestBody Site newSite) {
-        siteRepository.insert(newSite);
+        siteRepository.save(newSite);
         return newSite;
     }
 

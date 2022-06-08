@@ -24,5 +24,4 @@ public class SolaredgePowerDto {
         power.setPowerOutput(value);
         return power;
     }
-
 }

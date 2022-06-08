@@ -79,6 +79,10 @@ public class PowerRepository {
         return Optional.of(found.get(0));
     }
 
+    public void save(Power power) {
+        dynamoDBMapper.save(power);
+    }
+
     public void batchSave(Collection<Power> powerList) {
         dynamoDBMapper.batchSave(powerList);
     }

@@ -6,6 +6,7 @@ import com.cornelmarck.sunnycloud.exception.SolaredgeApiException;
 import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.util.TimeRange;
+import com.cornelmarck.sunnycloud.util.TimeUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,62 +37,57 @@ public class SolaredgeApiService {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final Duration maxPowerFetchPeriod = Duration.of(28, ChronoUnit.DAYS);
 
-    public void update(SolaredgeApiConfig syncApi) {
-        Optional<Power> latest = powerRepository.findLatestBySiteId(syncApi.getSiteId());
-        ZoneId zoneId = siteService.getTimeZoneId(syncApi.getSiteId());
-        if (latest.isPresent()) {
-            updateBetween(syncApi, latest.get().getTimestamp(), Instant.now());
+    public void update(SolaredgeApiConfig config) {
+        TimeRange toUpdate = getUpdateRange(config.getSiteId(), config.getExternalSiteId(), config.getApiKey());
+        toUpdate.split(maxPowerFetchPeriod).forEach(x -> updateRange(x, config));
+    }
+
+    private void updateRange(TimeRange range, SolaredgeApiConfig config) {
+        ZoneId zoneId = siteService.getTimeZoneId(config.getSiteId());
+        LocalDateTime from = TimeUtils.getLocalDateTime(range.getFrom(), zoneId);
+        LocalDateTime to = TimeUtils.getLocalDateTime(range.getTo(), zoneId);
+        try {
+            getPowerBetween(config.getExternalSiteId(), config.getApiKey(), from, to).stream()
+                    .map(x -> x.toPower(config.getSiteId(), zoneId))
+                    .collect(Collectors.toList())
+                    .forEach(powerRepository::save);
         }
-        else {
-            try {
-                Instant start = LocalDate.parse(getDataPeriod(syncApi).getStartDate()).atStartOfDay().atZone(zoneId).toInstant();
-                updateBetween(syncApi, start, Instant.now());
-            }
-            catch (JsonProcessingException e) {
-                throw new SolaredgeApiException(e.getMessage());
-            }
+        catch (IOException e) {
+            throw new SolaredgeApiException(e.getMessage());
         }
     }
 
-    public void updateBetween(SolaredgeApiConfig syncApi, Instant from, Instant to) {
-        TimeRange timeRange = new TimeRange(from, to);
-        for (TimeRange range : timeRange.split(maxPowerFetchPeriod)) {
-            try {
-                List<Power> measurements = getPowerBetween(syncApi, range.getFrom(), range.getTo());
-                powerRepository.batchSave(measurements);
-            }
-            catch (IOException e) {
-                throw new SolaredgeApiException(e.getMessage());
-            }
+    public TimeRange getUpdateRange(String siteId, String externalSiteId, String apiKey) {
+        ZoneId zoneId = siteService.getTimeZoneId(siteId);
+        Optional<Power> latest = powerRepository.findLatestBySiteId(siteId);
+        if (latest.isEmpty()) {
+            return new TimeRange(getDataPeriod(externalSiteId, apiKey).getStart(zoneId), Instant.now());
         }
+        return new TimeRange(latest.get().getTimestamp(), Instant.now());
     }
 
-    private List<Power> getPowerBetween(SolaredgeApiConfig syncApi, Instant from, Instant to) throws IOException {
-        ZoneId zoneId = siteService.getTimeZoneId(syncApi.getSiteId());
-        String requestURL = getPowerURL(syncApi, getLocalDateTime(from, zoneId), getLocalDateTime(to, zoneId));
+    public List<SolaredgePowerDto> getPowerBetween(String externalSiteId, String apiKey, LocalDateTime from, LocalDateTime to)
+            throws IOException {
+        String requestURL = getPowerURL(externalSiteId, apiKey, TimeUtils.roundUpToQuarter(from), to);
         ResponseEntity<JsonNode> entity = restTemplate.getForEntity(requestURL, JsonNode.class);
         Objects.requireNonNull(entity.getBody());
         JsonNode powerListNode = entity.getBody().get("power").get("values");
         ObjectReader objectReader = objectMapper.readerFor(new TypeReference<List<SolaredgePowerDto>>(){});
-        List<SolaredgePowerDto> powerDtoList = objectReader.readValue(powerListNode);
-        return powerDtoList.stream()
-                .map(x -> x.toPower(syncApi.getSiteId(), zoneId))
-                .collect(Collectors.toList());
+        return objectReader.readValue(powerListNode);
     }
 
-    private String getPowerURL(SolaredgeApiConfig syncApi, LocalDateTime from, LocalDateTime to) {
-        return solarEdgeEndpoint + "/site/" + syncApi.getExternalSiteId() + "/power.json?"
-                + "api_key=" + syncApi.getApiKey() + "&siteId=" + syncApi.getExternalSiteId()
-                + "&startTime=" + from.format(formatter) + "&endTime=" + to.format(formatter);
+    private String getPowerURL(String externalSiteId, String apiKey, LocalDateTime from, LocalDateTime to) {
+        return solarEdgeEndpoint + "/site/" + externalSiteId + "/power.json"
+                + "?api_key=" + apiKey + "&startTime=" + from.format(formatter) + "&endTime=" + to.format(formatter);
     }
 
-    private SolaredgeDataPeriodDto getDataPeriod(SolaredgeApiConfig syncApi) throws JsonProcessingException {
-        String requestURL = solarEdgeEndpoint + "/site/" + syncApi.getExternalSiteId()
-                + "/dataPeriod.json?api_key=" + syncApi.getApiKey();
-        return objectMapper.readValue(requestURL, SolaredgeDataPeriodDto.class);
-    }
-
-    private LocalDateTime getLocalDateTime(Instant instant, ZoneId zoneId) {
-        return instant.atZone(zoneId).toLocalDateTime();
+    private SolaredgeDataPeriodDto getDataPeriod(String externalSiteId, String apiKey) {
+        try {
+            String requestURL = solarEdgeEndpoint + "/site/" + externalSiteId + "/dataPeriod.json?api_key=" + apiKey;
+            return objectMapper.readValue(requestURL, SolaredgeDataPeriodDto.class);
+        }
+        catch (JsonProcessingException e) {
+            throw new SolaredgeApiException(e.getMessage());
+        }
     }
 }

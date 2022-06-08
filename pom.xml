@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.cornelmarck</groupId>
     <artifactId>sunnycloud</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0</version>
     <name>sunnycloud</name>
     <description>sunnycloud</description>
     <properties>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-dynamodb</artifactId>
-            <version>1.12.220</version>
+            <version>1.12.221</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
