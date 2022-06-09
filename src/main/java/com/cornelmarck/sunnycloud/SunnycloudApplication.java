@@ -19,7 +19,9 @@ public class SunnycloudApplication {
 
     @Bean
     public CommandLineRunner run(RestTemplate restTemplate) {
-        return System.out::println;
+        return (args) -> {
+            System.out.println("Hello world!");
+        };
     }
 
     @Bean
