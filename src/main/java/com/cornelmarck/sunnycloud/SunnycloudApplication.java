@@ -19,9 +19,7 @@ public class SunnycloudApplication {
 
     @Bean
     public CommandLineRunner run(RestTemplate restTemplate) {
-        return (args) -> {
-            System.out.println("Hello world!");
-        };
+        return System.out::println;
     }
 
     @Bean
@@ -34,7 +32,7 @@ public class SunnycloudApplication {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("http://localhost:5500");
+                registry.addMapping("/**").allowedMethods("*");
             }
         };
     }
