@@ -4,7 +4,7 @@ services:
     build: .
     ports:
       - "8080:8080"
-      - "8000:8000"
+      - "443:443"
     environment:
       - DYNAMODB_ENDPOINT
       - AWS_ACCESS_KEY_ID
