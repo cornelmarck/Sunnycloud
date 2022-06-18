@@ -5,16 +5,18 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.model.User;
+import com.cornelmarck.sunnycloud.repository.ApiConfigRepository;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
 import com.cornelmarck.sunnycloud.repository.UserRepository;
+import com.cornelmarck.sunnycloud.model.ApiConfigWrapper;
+import com.cornelmarck.sunnycloud.model.SolaredgeApiConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
 
 import java.time.Instant;
 import java.util.List;
@@ -22,7 +24,6 @@ import java.util.Optional;
 
 @Disabled
 @SpringBootTest(classes = SunnycloudApplication.class)
-@TestPropertySource(locations = "classpath:test.properties")
 public class DynamoDbIT {
     @Autowired
     private AmazonDynamoDB amazonDynamoDB;
@@ -34,11 +35,13 @@ public class DynamoDbIT {
     private SiteRepository siteRepository;
     @Autowired
     private PowerRepository powerRepository;
+    @Autowired
+    private ApiConfigRepository apiConfigRepository;
 
     @BeforeEach
     public void init() throws Exception {
         Utils utils = new Utils(amazonDynamoDB, dynamoDBMapper);
-        utils.deleteMainTable();
+        utils.deleteTables();
         utils.createMainTable();
     }
 
@@ -111,5 +114,20 @@ public class DynamoDbIT {
         List<Power> powerList = powerRepository.findAllBySiteIdAndTimestampBetween(id, Instant.parse("2021-03-21T23:30:00Z"),
                 Instant.parse("2021-03-22T00:15:00Z"));
         Assertions.assertEquals(3, powerList.size());
+    }
+
+    @Test
+    public void insertAndRetrieveSolarEdge() {
+        SolaredgeApiConfig config = new SolaredgeApiConfig();
+        config.setApiKey("asdf");
+        config.setExternalSiteId("2234345");
+        ApiConfigWrapper wrapper = new ApiConfigWrapper();
+        wrapper.setSiteId("12345678");
+        wrapper.setApiConfig(config);
+        apiConfigRepository.save(wrapper);
+
+        ApiConfigWrapper wrapper1 = apiConfigRepository.findBySiteId("12345678").orElseThrow();
+        Assertions.assertEquals(SolaredgeApiConfig.class, wrapper1.getApiConfig().getClass());
+        Assertions.assertEquals("asdf", ((SolaredgeApiConfig) wrapper1.getApiConfig()).getApiKey());
     }
 }

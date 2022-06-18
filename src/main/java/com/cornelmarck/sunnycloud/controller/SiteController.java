@@ -3,9 +3,13 @@ package com.cornelmarck.sunnycloud.controller;
 import com.cornelmarck.sunnycloud.dto.DataPeriodDto;
 import com.cornelmarck.sunnycloud.dto.PowerDto;
 import com.cornelmarck.sunnycloud.model.Site;
+import com.cornelmarck.sunnycloud.repository.ApiConfigRepository;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
+import com.cornelmarck.sunnycloud.model.AbstractApiConfig;
+import com.cornelmarck.sunnycloud.model.ApiConfigWrapper;
 import com.cornelmarck.sunnycloud.service.SiteService;
+import com.cornelmarck.sunnycloud.service.SiteSyncService;
 import com.cornelmarck.sunnycloud.util.DynamoDBInstantConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,8 +26,10 @@ import java.util.Optional;
 public class SiteController {
     private final SiteRepository siteRepository;
     private final PowerRepository powerRepository;
+    private final ApiConfigRepository apiConfigRepository;
     private final DynamoDBInstantConverter dynamoDBInstantConverter;
     private final SiteService siteService;
+    private final SiteSyncService siteSyncService;
 
     //Get all sites filtering on owner
     @GetMapping("/sites")
@@ -48,7 +54,7 @@ public class SiteController {
     }
 
     @GetMapping("/sites/{siteId}/power")
-    List<PowerDto> allBySiteId(@PathVariable String siteId, @RequestParam String from, @RequestParam String to) {
+    public List<PowerDto> allBySiteId(@PathVariable String siteId, @RequestParam String from, @RequestParam String to) {
         if (siteRepository.findById(siteId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found: " + siteId);
         }
@@ -60,8 +66,25 @@ public class SiteController {
         }
     }
 
+    @GetMapping("/sites/{siteId}/syncApi")
+    public AbstractApiConfig getApiConfig(@PathVariable String siteId) {
+        return apiConfigRepository.findBySiteId(siteId)
+                .map(ApiConfigWrapper::getApiConfig)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found: " + siteId));
+    }
+
+    @PutMapping("/sites/{siteId}/syncApi")
+    public void updateApiConfig(@PathVariable String siteId, @RequestBody AbstractApiConfig apiConfig) {
+        ApiConfigWrapper wrapper = new ApiConfigWrapper();
+        wrapper.setSiteId(siteId);
+        wrapper.setApiConfig(apiConfig);
+        apiConfigRepository.save(wrapper);
+
+        siteSyncService.updateSite(siteId);
+    }
+
     @GetMapping("/sites/{siteId}/dataPeriod")
-    DataPeriodDto dataPeriod(@PathVariable String siteId) {
+    public DataPeriodDto dataPeriod(@PathVariable String siteId) {
         return siteService.getDataPeriod(siteId);
     }
 }

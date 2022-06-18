@@ -21,7 +21,7 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    public User replaceUser(@RequestBody User newUser, @PathVariable String id) {
+    public User replaceUser(@PathVariable String id, @RequestBody User newUser) {
         return repository.findByEmailAddress(id)
                 .map(user -> {
                     user.setName(newUser.getName());

@@ -1,6 +1,5 @@
 package com.cornelmarck.sunnycloud.service;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedList;
 import com.cornelmarck.sunnycloud.dto.DataPeriodDto;
 import com.cornelmarck.sunnycloud.dto.PowerDto;
 import com.cornelmarck.sunnycloud.model.Power;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
