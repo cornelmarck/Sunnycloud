@@ -9,16 +9,19 @@ import lombok.Setter;
 import java.time.Instant;
 
 @AllArgsConstructor
-@DynamoDBTable(tableName="Main")
+@DynamoDBTable(tableName="Power")
 public class Power {
     @Getter @Setter
     @DynamoDBHashKey(attributeName = "Id")
     private String siteId;
+
     @Getter @Setter
     @DynamoDBRangeKey(attributeName = "SortKey")
     @DynamoDBTypeConverted(converter = DynamoDBInstantConverter.class)
     private Instant timestamp;
-    @Getter @Setter @DynamoDBAttribute(attributeName = "PowerOutput")
+
+    @Getter @Setter
+    @DynamoDBAttribute(attributeName = "PowerOutput")
     private double powerOutput;
 
     public Power() {}

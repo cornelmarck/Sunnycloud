@@ -43,6 +43,7 @@ public class DynamoDbIT {
         Utils utils = new Utils(amazonDynamoDB, dynamoDBMapper);
         utils.deleteTables();
         utils.createMainTable();
+        utils.createPowerTable();
     }
 
     @Test

@@ -57,13 +57,34 @@ public class Utils {
         table.waitForActive();
     }
 
-    public void deleteMainTable() {
+    public void createPowerTable() throws InterruptedException {
         DynamoDB dynamoDB = new DynamoDB(amazonDynamoDB);
-        try {
-            Table main = dynamoDB.getTable("Main");
-            main.delete();
+
+        List<AttributeDefinition> attributeDefinitions = new ArrayList<>();
+        attributeDefinitions.add(new AttributeDefinition().withAttributeName("Id").withAttributeType(ScalarAttributeType.S));
+        attributeDefinitions.add(new AttributeDefinition().withAttributeName("SortKey").withAttributeType(ScalarAttributeType.S));
+
+        List<KeySchemaElement> keySchema = new ArrayList<>();
+        keySchema.add(new KeySchemaElement().withAttributeName("Id").withKeyType(KeyType.HASH));
+        keySchema.add(new KeySchemaElement().withAttributeName("SortKey").withKeyType(KeyType.RANGE));
+
+        CreateTableRequest request = new CreateTableRequest()
+                .withTableName("Power")
+                .withKeySchema(keySchema)
+                .withAttributeDefinitions(attributeDefinitions)
+                .withProvisionedThroughput(new ProvisionedThroughput()
+                        .withReadCapacityUnits(1L)
+                        .withWriteCapacityUnits(1L));
+
+        Table table = dynamoDB.createTable(request);
+        table.waitForActive();
+    }
+
+    public void deleteTables() {
+        DynamoDB dynamoDB = new DynamoDB(amazonDynamoDB);
+        for (String table : amazonDynamoDB.listTables().getTableNames()) {
+            dynamoDB.getTable(table).delete();
         }
-        catch (RuntimeException ignored) {}
     }
 
     public void populateMainTable() {

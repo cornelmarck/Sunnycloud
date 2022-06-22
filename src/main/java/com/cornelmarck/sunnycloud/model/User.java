@@ -10,13 +10,18 @@ import lombok.Setter;
 
 @DynamoDBTable(tableName="Main")
 public class User {
-    @Getter @Setter @DynamoDBHashKey(attributeName="Id")
+    @Getter @Setter
+    @DynamoDBHashKey(attributeName="Id")
     private String emailAddress;
-    @JsonIgnore @Getter @Setter @DynamoDBRangeKey(attributeName="SortKey")
+    @JsonIgnore
+    @Getter @Setter
+    @DynamoDBRangeKey(attributeName="SortKey")
     private String sortKey;
-    @Getter @Setter @DynamoDBAttribute(attributeName = "Name")
+    @Getter @Setter
+    @DynamoDBAttribute(attributeName = "Name")
     private String name;
-    @Getter @Setter @DynamoDBAttribute(attributeName = "MobilePhoneNumber")
+    @Getter @Setter
+    @DynamoDBAttribute(attributeName = "MobilePhoneNumber")
     private String mobilePhoneNumber;
 
     public User() {
