@@ -23,7 +23,8 @@ public class ApiConfigRepository {
         eavMap.put(":v1", new AttributeValue().withS(type.name()));
 
         DynamoDBQueryExpression<ApiConfigWrapper> queryExpression = new DynamoDBQueryExpression<ApiConfigWrapper>()
-                .withKeyConditionExpression("Id = :v1")
+                .withIndexName("SyncApiTypeIndex")
+                .withKeyConditionExpression("SyncApiType = :v1")
                 .withExpressionAttributeValues(eavMap);
         return dynamoDBMapper.query(ApiConfigWrapper.class, queryExpression);
     }
