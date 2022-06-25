@@ -47,4 +47,8 @@ public class ApiConfigRepository {
         }
         return Optional.of(found.get(0));
     }
+
+    public void deleteBySiteId(String siteId) {
+        findBySiteId(siteId).ifPresent(dynamoDBMapper::delete);
+    }
 }

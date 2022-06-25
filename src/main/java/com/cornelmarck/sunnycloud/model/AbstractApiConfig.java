@@ -13,6 +13,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = SolaredgeApiConfig.class, name = "SOLAREDGE")
 })
 public abstract class AbstractApiConfig {
+    private boolean active;
+
     @JsonIgnore
     public abstract String getName();
+
+    public boolean isActive() {
+        return active;
+    }
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
 }

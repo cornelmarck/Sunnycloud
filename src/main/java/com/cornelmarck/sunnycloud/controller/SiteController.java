@@ -12,6 +12,8 @@ import com.cornelmarck.sunnycloud.service.SiteService;
 import com.cornelmarck.sunnycloud.service.SiteSyncService;
 import com.cornelmarck.sunnycloud.util.DynamoDBInstantConverter;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,6 +26,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RestController
 public class SiteController {
+    private final Logger logger = LoggerFactory.getLogger(SiteSyncService.class);
+
     private final SiteRepository siteRepository;
     private final PowerRepository powerRepository;
     private final ApiConfigRepository apiConfigRepository;
@@ -79,8 +83,13 @@ public class SiteController {
         wrapper.setSiteId(siteId);
         wrapper.setApiConfig(apiConfig);
         apiConfigRepository.save(wrapper);
-
         siteSyncService.updateSite(siteId);
+        logger.info("Updating site: " + siteId);
+    }
+
+    @DeleteMapping("/sites/{siteId}/syncApi")
+    public void deleteApiConfig(@PathVariable String siteId) {
+        apiConfigRepository.deleteBySiteId(siteId);
     }
 
     @GetMapping("/sites/{siteId}/dataPeriod")
