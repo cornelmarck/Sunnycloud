@@ -20,7 +20,7 @@ public class SiteSyncService {
     private final ApiConfigRepository apiConfigRepository;
     private final SolaredgeApiService solaredgeApiService;
 
-    @Scheduled(cron = "* 1/31 * * ? *")
+    @Scheduled(cron = "0 0/30 * * * *")
     public void updateSolarEdge() {
         logger.info("Scheduled Solaredge synchronisation");
         apiConfigRepository.findAllByType(SyncApiType.SOLAREDGE)
