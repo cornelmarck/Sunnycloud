@@ -29,12 +29,15 @@ public class SiteService {
         return TimeZone.getTimeZone(site.getTimeZone()).toZoneId();
     }
 
-    public List<PowerDto> getBetweenLocalDateTime(String siteId, LocalDateTime from, LocalDateTime to) {
+    public List<Power> getPowerBetween(String siteId, LocalDateTime from, LocalDateTime to) {
         ZoneId zoneId = getTimeZoneId(siteId);
-        List<Power> powerList = powerRepository.findAllBySiteIdAndTimestampBetween(
+        return powerRepository.findAllBySiteIdAndTimestampBetween(
                 siteId, TimeUtils.toInstant(from, zoneId), TimeUtils.toInstant(to, zoneId));
-        return powerList.stream()
-                .map(x -> PowerDto.fromPower(x, zoneId))
+    }
+
+    public List<PowerDto> getPowerDtoBetween(String siteId, LocalDateTime from, LocalDateTime to) {
+        return getPowerBetween(siteId, from, to).stream()
+                .map(x -> PowerDto.fromPower(x, getTimeZoneId(siteId)))
                 .collect(Collectors.toList());
     }
 
@@ -48,16 +51,20 @@ public class SiteService {
         return powerRepository.size(siteId);
     }
 
+    public void deletePowerMeasurements(String siteId, LocalDateTime from, LocalDateTime to) {
+        getPowerBetween(siteId, from, to).forEach(powerRepository::delete);
+    }
+
     public DataPeriodDto getDataPeriod(String siteId) {
         Site site = siteRepository.findById(siteId).orElseThrow();
         ZoneId zone = getTimeZoneId(siteId);
         if (powerIsEmpty(siteId)) {
             LocalDateTime zero = DynamoDBInstantConverter.MIN.atZone(zone).toLocalDateTime();
-            return new DataPeriodDto(zero, zero);
+            return new DataPeriodDto(siteId, zero, zero);
         }
         Instant begin = powerRepository.findEarliestBySiteId(siteId).orElseThrow().getTimestamp();
         Instant end = powerRepository.findLatestBySiteId(siteId).orElseThrow().getTimestamp().plusSeconds(1);
-        return new DataPeriodDto(begin.atZone(zone).toLocalDateTime(), end.atZone(zone).toLocalDateTime());
+        return new DataPeriodDto(siteId, begin.atZone(zone).toLocalDateTime(), end.atZone(zone).toLocalDateTime());
     }
 
 

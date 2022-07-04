@@ -1,10 +1,10 @@
 package com.cornelmarck.sunnycloud.service;
 
 import com.cornelmarck.sunnycloud.model.AbstractApiConfig;
-import com.cornelmarck.sunnycloud.model.ApiConfigWrapper;
+import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.model.SolaredgeApiConfig;
 import com.cornelmarck.sunnycloud.model.SyncApiType;
-import com.cornelmarck.sunnycloud.repository.ApiConfigRepository;
+import com.cornelmarck.sunnycloud.repository.SiteRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,23 +17,23 @@ import java.util.Optional;
 @Service
 public class SiteSyncService {
     private final Logger logger = LoggerFactory.getLogger(SiteSyncService.class);
-    private final ApiConfigRepository apiConfigRepository;
+    private final SiteRepository siteRepository;
     private final SolaredgeApiService solaredgeApiService;
 
-    @Scheduled(cron = "0 0/30 * * * *")
+    @Scheduled(cron = "0 1/31 * * * *")
     public void updateSolarEdge() {
         logger.info("Scheduled Solaredge synchronisation");
-        apiConfigRepository.findAllByType(SyncApiType.SOLAREDGE)
-                .forEach(x -> solaredgeApiService.updateSite(x.getSiteId(), (SolaredgeApiConfig) x.getApiConfig()));
+        siteRepository.findAllBySyncApiType(SyncApiType.SOLAREDGE)
+                .forEach(x -> solaredgeApiService.updateSite(x.getId(), (SolaredgeApiConfig) x.getApiConfig()));
     }
 
     public void updateSite(String siteId) {
         logger.debug("Instantiated site synchronisation: " + siteId);
-        Optional<ApiConfigWrapper> wrapper = apiConfigRepository.findBySiteId(siteId);
-        if (wrapper.isEmpty()) {
+        Optional<Site> site = siteRepository.findById(siteId);
+        if (site.isEmpty()) {
             return;
         }
-        AbstractApiConfig config = wrapper.get().getApiConfig();
+        AbstractApiConfig config = site.get().getApiConfig();
 
         if (config instanceof SolaredgeApiConfig) {
             solaredgeApiService.updateSite(siteId, (SolaredgeApiConfig) config);

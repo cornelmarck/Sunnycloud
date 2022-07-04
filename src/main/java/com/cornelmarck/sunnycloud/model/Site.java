@@ -24,6 +24,17 @@ public class Site {
     @DynamoDBAttribute(attributeName = "Name")
     private String name;
 
+    @JsonIgnore
+    @DynamoDBAttribute(attributeName = "SyncApiType")
+    public String getType() {
+        return apiConfig.getName();
+    }
+    public void setType(String type) {}
+
+    @Getter @Setter
+    @DynamoDBAttribute(attributeName = "ApiConfig")
+    private AbstractApiConfig apiConfig;
+
     @Getter @Setter
     @DynamoDBIndexHashKey(globalSecondaryIndexName = "SiteOwnerIndex", attributeName = "OwnerId")
     private String ownerId;

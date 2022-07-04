@@ -5,12 +5,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.model.User;
-import com.cornelmarck.sunnycloud.repository.ApiConfigRepository;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
 import com.cornelmarck.sunnycloud.repository.UserRepository;
-import com.cornelmarck.sunnycloud.model.ApiConfigWrapper;
-import com.cornelmarck.sunnycloud.model.SolaredgeApiConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -35,8 +32,6 @@ public class DynamoDbIT {
     private SiteRepository siteRepository;
     @Autowired
     private PowerRepository powerRepository;
-    @Autowired
-    private ApiConfigRepository apiConfigRepository;
 
     @BeforeEach
     public void init() throws Exception {
@@ -117,18 +112,4 @@ public class DynamoDbIT {
         Assertions.assertEquals(3, powerList.size());
     }
 
-    @Test
-    public void insertAndRetrieveSolarEdge() {
-        SolaredgeApiConfig config = new SolaredgeApiConfig();
-        config.setApiKey("asdf");
-        config.setExternalSiteId("2234345");
-        ApiConfigWrapper wrapper = new ApiConfigWrapper();
-        wrapper.setSiteId("12345678");
-        wrapper.setApiConfig(config);
-        apiConfigRepository.save(wrapper);
-
-        ApiConfigWrapper wrapper1 = apiConfigRepository.findBySiteId("12345678").orElseThrow();
-        Assertions.assertEquals(SolaredgeApiConfig.class, wrapper1.getApiConfig().getClass());
-        Assertions.assertEquals("asdf", ((SolaredgeApiConfig) wrapper1.getApiConfig()).getApiKey());
-    }
 }

@@ -86,4 +86,8 @@ public class PowerRepository {
     public void batchSave(Collection<Power> powerList) {
         dynamoDBMapper.batchSave(powerList);
     }
+
+    public void delete(Power power) {
+        dynamoDBMapper.delete(power);
+    }
 }

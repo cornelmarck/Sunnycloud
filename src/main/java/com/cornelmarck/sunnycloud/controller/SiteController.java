@@ -2,12 +2,11 @@ package com.cornelmarck.sunnycloud.controller;
 
 import com.cornelmarck.sunnycloud.dto.DataPeriodDto;
 import com.cornelmarck.sunnycloud.dto.PowerDto;
+import com.cornelmarck.sunnycloud.exception.SolaredgeApiException;
+import com.cornelmarck.sunnycloud.model.AbstractApiConfig;
 import com.cornelmarck.sunnycloud.model.Site;
-import com.cornelmarck.sunnycloud.repository.ApiConfigRepository;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
-import com.cornelmarck.sunnycloud.model.AbstractApiConfig;
-import com.cornelmarck.sunnycloud.model.ApiConfigWrapper;
 import com.cornelmarck.sunnycloud.service.SiteService;
 import com.cornelmarck.sunnycloud.service.SiteSyncService;
 import com.cornelmarck.sunnycloud.util.DynamoDBInstantConverter;
@@ -22,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,7 +30,6 @@ public class SiteController {
 
     private final SiteRepository siteRepository;
     private final PowerRepository powerRepository;
-    private final ApiConfigRepository apiConfigRepository;
     private final DynamoDBInstantConverter dynamoDBInstantConverter;
     private final SiteService siteService;
     private final SiteSyncService siteSyncService;
@@ -57,43 +56,47 @@ public class SiteController {
         return newSite;
     }
 
+    @PutMapping("/sites/{siteId}")
+    public void updateSite(@PathVariable String siteId, @RequestBody Site site) {
+        if (!siteId.equals(site.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "siteId does not match");
+        }
+        siteRepository.save(site);
+        logger.info("Updating site siteId={}", siteId);
+        siteSyncService.updateSite(siteId);
+    }
+
     @GetMapping("/sites/{siteId}/power")
     public List<PowerDto> allBySiteId(@PathVariable String siteId, @RequestParam String from, @RequestParam String to) {
         if (siteRepository.findById(siteId).isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found: " + siteId);
         }
         try {
-            return siteService.getBetweenLocalDateTime(siteId, LocalDateTime.parse(from), LocalDateTime.parse(to));
+            return siteService.getPowerDtoBetween(siteId, LocalDateTime.parse(from), LocalDateTime.parse(to));
         }
         catch (DateTimeParseException dateTimeParseException) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");
         }
     }
 
-    @GetMapping("/sites/{siteId}/syncApi")
-    public AbstractApiConfig getApiConfig(@PathVariable String siteId) {
-        return apiConfigRepository.findBySiteId(siteId)
-                .map(ApiConfigWrapper::getApiConfig)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found: " + siteId));
-    }
-
-    @PutMapping("/sites/{siteId}/syncApi")
-    public void updateApiConfig(@PathVariable String siteId, @RequestBody AbstractApiConfig apiConfig) {
-        ApiConfigWrapper wrapper = new ApiConfigWrapper();
-        wrapper.setSiteId(siteId);
-        wrapper.setApiConfig(apiConfig);
-        apiConfigRepository.save(wrapper);
-        siteSyncService.updateSite(siteId);
-        logger.info("Updating site: " + siteId);
-    }
-
-    @DeleteMapping("/sites/{siteId}/syncApi")
-    public void deleteApiConfig(@PathVariable String siteId) {
-        apiConfigRepository.deleteBySiteId(siteId);
+    @DeleteMapping("/sites/{siteId}/power")
+    public void deleteBySiteId(@PathVariable String siteId, @RequestParam String from, @RequestParam String to) {
+        if (siteRepository.findById(siteId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found: " + siteId);
+        }
+        try {
+            siteService.deletePowerMeasurements(siteId, LocalDateTime.parse(from), LocalDateTime.parse(to));
+        }
+        catch (DateTimeParseException dateTimeParseException) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request");
+        }
     }
 
     @GetMapping("/sites/{siteId}/dataPeriod")
     public DataPeriodDto dataPeriod(@PathVariable String siteId) {
+        if (siteRepository.findById(siteId).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Site not found: " + siteId);
+        }
         return siteService.getDataPeriod(siteId);
     }
 }

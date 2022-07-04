@@ -2,7 +2,6 @@ package com.cornelmarck.sunnycloud;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.cornelmarck.sunnycloud.repository.ApiConfigRepository;
 import com.cornelmarck.sunnycloud.service.SolaredgeApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +17,7 @@ public class SolaredgeApiServiceIT {
     private AmazonDynamoDB amazonDynamoDB;
     @Autowired
     private SolaredgeApiService solaredgeService;
-    @Autowired
-    private ApiConfigRepository apiConfigRepository;
+
     @Value("${solaredge.test.apikey}")
     private String apikey;
     @Value("${solaredge.test.siteid}")
