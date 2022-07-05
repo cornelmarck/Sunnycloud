@@ -109,9 +109,8 @@ public class SolaredgeApiService {
             return objectMapper.treeToValue(entity.getBody().get("dataPeriod"), SolaredgeDataPeriodDto.class);
         }
         catch (JsonProcessingException e) {
+            logger.error("Json processing error " + e.getMessage());
             throw new SolaredgeApiException(e.getMessage());
         }
-
-
     }
 }

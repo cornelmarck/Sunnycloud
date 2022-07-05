@@ -2,6 +2,7 @@ package com.cornelmarck.sunnycloud.service;
 
 import com.cornelmarck.sunnycloud.dto.DataPeriodDto;
 import com.cornelmarck.sunnycloud.dto.PowerDto;
+import com.cornelmarck.sunnycloud.exception.SiteNotFoundException;
 import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
@@ -24,39 +25,34 @@ public class SiteService {
     private final SiteRepository siteRepository;
     private final PowerRepository powerRepository;
 
-    public ZoneId getTimeZoneId(String siteId) {
-        Site site = siteRepository.findById(siteId).orElseThrow();
-        return TimeZone.getTimeZone(site.getTimeZone()).toZoneId();
-    }
-
-    public List<Power> getPowerBetween(String siteId, LocalDateTime from, LocalDateTime to) {
-        ZoneId zoneId = getTimeZoneId(siteId);
-        return powerRepository.findAllBySiteIdAndTimestampBetween(
-                siteId, TimeUtils.toInstant(from, zoneId), TimeUtils.toInstant(to, zoneId));
-    }
-
     public List<PowerDto> getPowerDtoBetween(String siteId, LocalDateTime from, LocalDateTime to) {
         return getPowerBetween(siteId, from, to).stream()
                 .map(x -> PowerDto.fromPower(x, getTimeZoneId(siteId)))
                 .collect(Collectors.toList());
     }
 
-    public boolean powerIsEmpty(String siteId) {
-        siteRepository.findById(siteId).orElseThrow();
-        return powerRepository.findEarliestBySiteId(siteId).isEmpty();
-    }
-
-    public int numberOfPowerMeasurements(String siteId) {
-        siteRepository.findById(siteId).orElseThrow();
-        return powerRepository.size(siteId);
-    }
-
     public void deletePowerMeasurements(String siteId, LocalDateTime from, LocalDateTime to) {
         getPowerBetween(siteId, from, to).forEach(powerRepository::delete);
     }
 
+    public List<Power> getPowerBetween(String siteId, LocalDateTime from, LocalDateTime to) {
+        checkIfSiteExists(siteId);
+        ZoneId zoneId = getTimeZoneId(siteId);
+        return powerRepository.findAllBySiteIdAndTimestampBetween(
+                siteId, TimeUtils.toInstant(from, zoneId), TimeUtils.toInstant(to, zoneId));
+    }
+
+    public ZoneId getTimeZoneId(String siteId) {
+        Site site = siteRepository.findById(siteId).orElseThrow(() -> new SiteNotFoundException(siteId));
+        return TimeZone.getTimeZone(site.getTimeZone()).toZoneId();
+    }
+
+    public void checkIfSiteExists(String siteId) {
+        siteRepository.findById(siteId).orElseThrow(() -> new SiteNotFoundException(siteId));
+    }
+
     public DataPeriodDto getDataPeriod(String siteId) {
-        Site site = siteRepository.findById(siteId).orElseThrow();
+        checkIfSiteExists(siteId);
         ZoneId zone = getTimeZoneId(siteId);
         if (powerIsEmpty(siteId)) {
             LocalDateTime zero = DynamoDBInstantConverter.MIN.atZone(zone).toLocalDateTime();
@@ -67,5 +63,8 @@ public class SiteService {
         return new DataPeriodDto(siteId, begin.atZone(zone).toLocalDateTime(), end.atZone(zone).toLocalDateTime());
     }
 
-
+    public boolean powerIsEmpty(String siteId) {
+        checkIfSiteExists(siteId);
+        return powerRepository.findEarliestBySiteId(siteId).isEmpty();
+    }
 }
