@@ -23,8 +23,9 @@ public class SiteSyncService {
     @Scheduled(cron = "0 1/31 * * * *")
     public void updateSolarEdge() {
         logger.info("Scheduled Solaredge synchronisation");
-        siteRepository.findAllBySyncApiType(SyncApiType.SOLAREDGE)
-                .forEach(x -> solaredgeApiService.updateSite(x.getId(), (SolaredgeApiConfig) x.getApiConfig()));
+        for (Site site : siteRepository.findAllBySyncApiType(SyncApiType.SOLAREDGE)) {
+            solaredgeApiService.updateSite(site.getId(), (SolaredgeApiConfig) site.getApiConfig());
+        }
     }
 
     public void updateSite(String siteId) {

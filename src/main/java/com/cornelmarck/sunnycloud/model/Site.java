@@ -9,7 +9,6 @@ import lombok.Setter;
 import java.util.UUID;
 
 @DynamoDBTable(tableName="Main")
-@JsonIgnoreProperties(value={ "id" }, allowGetters=true)
 public class Site {
     @Getter @Setter
     @DynamoDBHashKey(attributeName = "Id")

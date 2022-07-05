@@ -104,12 +104,11 @@ public class SolaredgeApiService {
             logger.debug("Fetch data period externalSiteId={}", externalSiteId);
             String requestURL = solarEdgeEndpoint + "/site/" + externalSiteId + "/dataPeriod.json?api_key=" + apiKey;
             ResponseEntity<JsonNode> entity = restTemplate.getForEntity(requestURL, JsonNode.class);
-            logger.debug("Data period fetch status code: {}", entity.getStatusCode());
             Objects.requireNonNull(entity.getBody());
             return objectMapper.treeToValue(entity.getBody().get("dataPeriod"), SolaredgeDataPeriodDto.class);
         }
         catch (JsonProcessingException e) {
-            logger.error("Json processing error " + e.getMessage());
+            logger.error("Json processing error ");
             throw new SolaredgeApiException(e.getMessage());
         }
     }
