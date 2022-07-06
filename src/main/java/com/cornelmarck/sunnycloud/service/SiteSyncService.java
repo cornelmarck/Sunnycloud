@@ -24,18 +24,20 @@ public class SiteSyncService {
     public void updateSolarEdge() {
         logger.info("Scheduled Solaredge synchronisation");
         for (Site site : siteRepository.findAllBySyncApiType(SyncApiType.SOLAREDGE)) {
-            solaredgeApiService.updateSite(site.getId(), (SolaredgeApiConfig) site.getApiConfig());
+            if (site.getApiConfig().isActive()) {
+                solaredgeApiService.updateSite(site.getId(), (SolaredgeApiConfig) site.getApiConfig());
+            }
         }
     }
 
     public void updateSite(String siteId) {
         logger.debug("Instantiated site synchronisation: " + siteId);
         Optional<Site> site = siteRepository.findById(siteId);
-        if (site.isEmpty() || site.get().getApiConfig() == null) {
+        if (site.isEmpty()) {
             return;
         }
         AbstractApiConfig config = site.get().getApiConfig();
-        if (!config.isActive()) {
+        if (config == null || !config.isActive()) {
             return;
         }
         if (config instanceof SolaredgeApiConfig) {
