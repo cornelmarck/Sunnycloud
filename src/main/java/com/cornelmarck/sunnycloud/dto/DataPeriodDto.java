@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class DataPeriodDto {
     @Getter @Setter
+    private String siteId;
+
+    @Getter @Setter
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonFormat(shape = JsonFormat.Shape.STRING)

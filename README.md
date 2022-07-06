@@ -1,3 +1,5 @@
 # Sunnycloud monitoring
 
- Real-time monitoring and prediction of solar panel output in a unified dashboard.
+ Real-time monitoring of solar panel output
+
+http://sunnycloud.cornelmarck.com/frontend/overview.html

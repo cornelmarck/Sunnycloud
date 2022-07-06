@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.cornelmarck.sunnycloud.model.Site;
+import com.cornelmarck.sunnycloud.model.SyncApiType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -54,6 +55,22 @@ public class SiteRepository {
                 .withFilterExpression("SortKey = :v1")
                 .withExpressionAttributeValues(eavMap);
         return dynamoDBMapper.scan(Site.class, scanExpression);
+    }
+
+    public List<Site> findAllBySyncApiType(SyncApiType type) {
+        Map<String, AttributeValue> eavMap = new HashMap<>();
+        eavMap.put(":v1", new AttributeValue().withS(type.name()));
+
+        DynamoDBQueryExpression<Site> queryExpression = new DynamoDBQueryExpression<Site>()
+                .withIndexName("SyncApiTypeIndex")
+                .withKeyConditionExpression("SyncApiType = :v1")
+                .withConsistentRead(false)
+                .withExpressionAttributeValues(eavMap);
+        return dynamoDBMapper.query(Site.class, queryExpression);
+    }
+
+    public void delete(String siteId) {
+        findById(siteId).ifPresent(dynamoDBMapper::delete);
     }
 
     public void save(Site newSite) {

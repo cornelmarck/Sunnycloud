@@ -5,12 +5,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.model.User;
-import com.cornelmarck.sunnycloud.repository.ApiConfigRepository;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
 import com.cornelmarck.sunnycloud.repository.UserRepository;
-import com.cornelmarck.sunnycloud.model.ApiConfigWrapper;
-import com.cornelmarck.sunnycloud.model.SolaredgeApiConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -18,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,8 +32,6 @@ public class DynamoDbIT {
     private SiteRepository siteRepository;
     @Autowired
     private PowerRepository powerRepository;
-    @Autowired
-    private ApiConfigRepository apiConfigRepository;
 
     @BeforeEach
     public void init() throws Exception {
@@ -105,30 +100,16 @@ public class DynamoDbIT {
         siteRepository.save(one);
 
         String id = one.getId();
-        powerRepository.save(new Power(id, Instant.parse("2021-03-21T23:15:00Z"), 3401.1));
-        powerRepository.save(new Power(id, Instant.parse("2021-03-21T23:30:00Z"), 4331.4));
-        powerRepository.save(new Power(id, Instant.parse("2021-03-21T23:45:00Z"), 4221));
-        powerRepository.save(new Power(id, Instant.parse("2021-03-22T00:00:00Z"), 5321));
-        powerRepository.save(new Power(id, Instant.parse("2021-03-22T00:15:00Z"), 2789));
-        powerRepository.save(new Power(id, Instant.parse("2021-03-22T00:30:00Z"), 4999.4));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-21T23:15:00Z"), 3401.1));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-21T23:30:00Z"), 4331.4));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-21T23:45:00Z"), 4221));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-22T00:00:00Z"), 5321));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-22T00:15:00Z"), 2789));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-22T00:30:00Z"), 4999.4));
 
-        List<Power> powerList = powerRepository.findAllBySiteIdAndTimestampBetween(id, Instant.parse("2021-03-21T23:30:00Z"),
-                Instant.parse("2021-03-22T00:15:00Z"));
+        List<Power> powerList = powerRepository.findAllBySiteIdBetween(id, LocalDateTime.parse("2021-03-21T23:30:00Z"),
+                LocalDateTime.parse("2021-03-22T00:15:00Z"));
         Assertions.assertEquals(3, powerList.size());
     }
 
-    @Test
-    public void insertAndRetrieveSolarEdge() {
-        SolaredgeApiConfig config = new SolaredgeApiConfig();
-        config.setApiKey("asdf");
-        config.setExternalSiteId("2234345");
-        ApiConfigWrapper wrapper = new ApiConfigWrapper();
-        wrapper.setSiteId("12345678");
-        wrapper.setApiConfig(config);
-        apiConfigRepository.save(wrapper);
-
-        ApiConfigWrapper wrapper1 = apiConfigRepository.findBySiteId("12345678").orElseThrow();
-        Assertions.assertEquals(SolaredgeApiConfig.class, wrapper1.getApiConfig().getClass());
-        Assertions.assertEquals("asdf", ((SolaredgeApiConfig) wrapper1.getApiConfig()).getApiKey());
-    }
 }

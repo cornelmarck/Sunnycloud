@@ -16,11 +16,10 @@ public class SolaredgePowerDto {
     private double value;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public Power toPower(String siteId, ZoneId originalZoneId) {
+    public Power toPower(String siteId) {
         Power power = new Power();
         power.setSiteId(siteId);
-        ZonedDateTime zonedDateTime = ZonedDateTime.of(LocalDateTime.parse(date, formatter), originalZoneId);
-        power.setTimestamp(zonedDateTime.toInstant());
+        power.setTimestamp(LocalDateTime.parse(date, formatter));
         power.setPowerOutput(value);
         return power;
     }

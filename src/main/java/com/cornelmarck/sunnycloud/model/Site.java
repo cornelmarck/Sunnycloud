@@ -9,7 +9,6 @@ import lombok.Setter;
 import java.util.UUID;
 
 @DynamoDBTable(tableName="Main")
-@JsonIgnoreProperties(value={ "id" }, allowGetters=true)
 public class Site {
     @Getter @Setter
     @DynamoDBHashKey(attributeName = "Id")
@@ -23,6 +22,17 @@ public class Site {
     @Getter @Setter
     @DynamoDBAttribute(attributeName = "Name")
     private String name;
+
+    @JsonIgnore
+    @DynamoDBAttribute(attributeName = "SyncApiType")
+    public String getType() {
+        return apiConfig.getName();
+    }
+    public void setType(String type) {}
+
+    @Getter @Setter
+    @DynamoDBAttribute(attributeName = "ApiConfig")
+    private AbstractApiConfig apiConfig;
 
     @Getter @Setter
     @DynamoDBIndexHashKey(globalSecondaryIndexName = "SiteOwnerIndex", attributeName = "OwnerId")
