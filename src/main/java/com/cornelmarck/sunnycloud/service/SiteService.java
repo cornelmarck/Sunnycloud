@@ -31,6 +31,14 @@ public class SiteService {
                 .collect(Collectors.toList());
     }
 
+    public void deleteSite(String siteId) {
+        ZoneId zoneId = getTimeZoneId(siteId);
+        LocalDateTime min = TimeUtils.getLocalDateTime(DynamoDBInstantConverter.MIN, zoneId);
+        LocalDateTime max = TimeUtils.getLocalDateTime(DynamoDBInstantConverter.MAX, zoneId);
+        deletePowerMeasurements(siteId, min, max);
+        siteRepository.delete(siteId);
+    }
+
     public void deletePowerMeasurements(String siteId, LocalDateTime from, LocalDateTime to) {
         getPowerBetween(siteId, from, to).forEach(powerRepository::delete);
     }

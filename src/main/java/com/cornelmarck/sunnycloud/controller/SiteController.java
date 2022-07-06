@@ -47,6 +47,12 @@ public class SiteController {
         return siteRepository.findById(siteId).orElseThrow(() -> new SiteNotFoundException(siteId));
     }
 
+    @DeleteMapping("/sites/{siteId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable String siteId) {
+        siteService.deleteSite(siteId);
+    }
+
     @PostMapping("/sites")
     @ResponseStatus(HttpStatus.CREATED)
     public Site create(@RequestBody Site newSite) {
