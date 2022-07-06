@@ -7,7 +7,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 public class TimeUtils {
-    public static LocalDateTime getLocalDateTime(Instant instant, ZoneId zoneId) {
+    public static LocalDateTime toLocalDateTime(Instant instant, ZoneId zoneId) {
         return instant.atZone(zoneId).toLocalDateTime();
     }
 

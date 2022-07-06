@@ -5,34 +5,20 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.cornelmarck.sunnycloud.model.Power;
-import com.cornelmarck.sunnycloud.util.DynamoDBInstantConverter;
+import com.cornelmarck.sunnycloud.util.DynamoDBDateTimeConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
 public class PowerRepository {
     private final DynamoDBMapper dynamoDBMapper;
-    private final DynamoDBInstantConverter dynamoConverter;
+    private final DynamoDBDateTimeConverter dynamoConverter;
 
-    public Optional<Power> findBySiteIdAndTimestamp(String siteId, Instant timestamp) {
-        Map<String, AttributeValue> eavMap = new HashMap<>();
-        eavMap.put(":v1", new AttributeValue().withS(siteId));
-        eavMap.put(":v2", new AttributeValue().withS(dynamoConverter.convert(timestamp)));
-        DynamoDBQueryExpression<Power> queryExpression = new DynamoDBQueryExpression<Power>()
-                .withKeyConditionExpression("Id = :v1 and SortKey = :v2")
-                .withExpressionAttributeValues(eavMap);
-        List<Power> result = dynamoDBMapper.query(Power.class, queryExpression);
-        if (result.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(result.get(0));
-    }
-
-    public PaginatedList<Power> findAllBySiteIdAndTimestampBetween(String siteId, Instant from, Instant to) {
+    public PaginatedList<Power> findAllBySiteIdBetween(String siteId, LocalDateTime from, LocalDateTime to) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
         eavMap.put(":v1", new AttributeValue().withS(siteId));
         eavMap.put(":v2", new AttributeValue().withS(dynamoConverter.convert(from)));
@@ -43,14 +29,10 @@ public class PowerRepository {
         return dynamoDBMapper.query(Power.class, queryExpression);
     }
 
-    public int size(String siteId) {
-        return findAllBySiteIdAndTimestampBetween(siteId, DynamoDBInstantConverter.MIN, DynamoDBInstantConverter.MAX).size();
-    }
-
     public Optional<Power> findLatestBySiteId(String siteId) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
         eavMap.put(":v1", new AttributeValue().withS(siteId));
-        eavMap.put(":v2", new AttributeValue().withS(dynamoConverter.convert(DynamoDBInstantConverter.MAX)));
+        eavMap.put(":v2", new AttributeValue().withS(dynamoConverter.convert(DynamoDBDateTimeConverter.MAX)));
         DynamoDBQueryExpression<Power> queryExpression = new DynamoDBQueryExpression<Power>()
                 .withKeyConditionExpression("Id = :v1 and SortKey < :v2")
                 .withExpressionAttributeValues(eavMap)
@@ -66,7 +48,7 @@ public class PowerRepository {
     public Optional<Power> findEarliestBySiteId(String siteId) {
         Map<String, AttributeValue> eavMap = new HashMap<>();
         eavMap.put(":v1", new AttributeValue().withS(siteId));
-        eavMap.put(":v2", new AttributeValue().withS(dynamoConverter.convert(DynamoDBInstantConverter.MIN)));
+        eavMap.put(":v2", new AttributeValue().withS(dynamoConverter.convert(DynamoDBDateTimeConverter.MIN)));
         DynamoDBQueryExpression<Power> queryExpression = new DynamoDBQueryExpression<Power>()
                 .withKeyConditionExpression("Id = :v1 and SortKey >= :v2")
                 .withExpressionAttributeValues(eavMap)
@@ -81,10 +63,6 @@ public class PowerRepository {
 
     public void save(Power power) {
         dynamoDBMapper.save(power);
-    }
-
-    public void batchSave(Collection<Power> powerList) {
-        dynamoDBMapper.batchSave(powerList);
     }
 
     public void delete(Power power) {

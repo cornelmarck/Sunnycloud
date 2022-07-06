@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -100,15 +100,15 @@ public class DynamoDbIT {
         siteRepository.save(one);
 
         String id = one.getId();
-        powerRepository.save(new Power(id, Instant.parse("2021-03-21T23:15:00Z"), 3401.1));
-        powerRepository.save(new Power(id, Instant.parse("2021-03-21T23:30:00Z"), 4331.4));
-        powerRepository.save(new Power(id, Instant.parse("2021-03-21T23:45:00Z"), 4221));
-        powerRepository.save(new Power(id, Instant.parse("2021-03-22T00:00:00Z"), 5321));
-        powerRepository.save(new Power(id, Instant.parse("2021-03-22T00:15:00Z"), 2789));
-        powerRepository.save(new Power(id, Instant.parse("2021-03-22T00:30:00Z"), 4999.4));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-21T23:15:00Z"), 3401.1));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-21T23:30:00Z"), 4331.4));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-21T23:45:00Z"), 4221));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-22T00:00:00Z"), 5321));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-22T00:15:00Z"), 2789));
+        powerRepository.save(new Power(id, LocalDateTime.parse("2021-03-22T00:30:00Z"), 4999.4));
 
-        List<Power> powerList = powerRepository.findAllBySiteIdAndTimestampBetween(id, Instant.parse("2021-03-21T23:30:00Z"),
-                Instant.parse("2021-03-22T00:15:00Z"));
+        List<Power> powerList = powerRepository.findAllBySiteIdBetween(id, LocalDateTime.parse("2021-03-21T23:30:00Z"),
+                LocalDateTime.parse("2021-03-22T00:15:00Z"));
         Assertions.assertEquals(3, powerList.size());
     }
 

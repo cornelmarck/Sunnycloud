@@ -2,15 +2,16 @@ package com.cornelmarck.sunnycloud.util;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class TimeRange {
-    private final Instant from;
-    private final Instant to;
+    private final LocalDateTime from;
+    private final LocalDateTime to;
 
-    public TimeRange(Instant from, Instant to) {
+    public TimeRange(LocalDateTime from, LocalDateTime to) {
         this.from = from;
         this.to = to;
     }
@@ -19,19 +20,19 @@ public class TimeRange {
         return Duration.between(from, to);
     }
 
-    public Instant getFrom() {
+    public LocalDateTime getFrom() {
         return from;
     }
 
-    public Instant getTo() {
+    public LocalDateTime getTo() {
         return to;
     }
 
     public List<TimeRange> split(Duration maxDuration) {
         List<TimeRange> out = new ArrayList<>();
-        Instant begin = from;
+        LocalDateTime begin = from;
         while (begin.isBefore(to)) {
-            Instant end = Collections.min(List.of(begin.plus(maxDuration), to));
+            LocalDateTime end = Collections.min(List.of(begin.plus(maxDuration), to));
             out.add(new TimeRange(begin, end));
             begin = end;
         }

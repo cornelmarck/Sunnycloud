@@ -8,7 +8,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
-import com.cornelmarck.sunnycloud.util.DynamoDBInstantConverter;
+import com.cornelmarck.sunnycloud.util.DynamoDBDateTimeConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -44,8 +44,8 @@ public class DynamoDBConfig {
     }
 
     @Bean
-    public DynamoDBInstantConverter instantConverter() {
-        return new DynamoDBInstantConverter();
+    public DynamoDBDateTimeConverter instantConverter() {
+        return new DynamoDBDateTimeConverter();
     }
 
     @Bean

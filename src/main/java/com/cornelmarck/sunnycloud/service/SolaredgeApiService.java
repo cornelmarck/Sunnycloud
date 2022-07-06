@@ -48,18 +48,18 @@ public class SolaredgeApiService {
     public void updateSite(String siteId, SolaredgeApiConfig config) {
         logger.info("Updating siteId={}", siteId);
         TimeRange toUpdate = getRangeToUpdate(siteId, config.getExternalSiteId(), config.getApiKey());
-        toUpdate.split(maxPowerFetchPeriod).forEach(x -> updateRange(x, siteId, config));
+        for (TimeRange range : toUpdate.split(maxPowerFetchPeriod)) {
+            updateRange(range, siteId, config.getExternalSiteId(), config.getApiKey());
+        }
     }
 
-    private void updateRange(TimeRange range, String siteId, SolaredgeApiConfig config) {
+    private void updateRange(TimeRange range, String siteId, String externalSiteId, String apiKey) {
         ZoneId zoneId = siteService.getTimeZoneId(siteId);
-        LocalDateTime from = TimeUtils.getLocalDateTime(range.getFrom(), zoneId);
-        LocalDateTime to = TimeUtils.getLocalDateTime(range.getTo(), zoneId);
-        logger.info("Updating time range from={} to={}", from.toString(), to.toString());
+        logger.info("Updating time range from={} to={}", range.getFrom().toString(), range.getTo().toString());
 
         try {
-            getPowerBetween(config.getExternalSiteId(), config.getApiKey(), from, to).stream()
-                    .map(x -> x.toPower(siteId, zoneId))
+            getPowerBetween(externalSiteId, apiKey, range.getFrom(), range.getTo()).stream()
+                    .map(x -> x.toPower(siteId))
                     .collect(Collectors.toList())
                     .forEach(powerRepository::save);
         }
@@ -70,11 +70,12 @@ public class SolaredgeApiService {
 
     private TimeRange getRangeToUpdate(String siteId, String externalSiteId, String apiKey) {
         ZoneId zoneId = siteService.getTimeZoneId(siteId);
+        LocalDateTime now = Instant.now().atZone(zoneId).toLocalDateTime();
         Optional<Power> latest = powerRepository.findLatestBySiteId(siteId);
         if (latest.isEmpty()) {
-            return new TimeRange(getDataPeriod(externalSiteId, apiKey).getStart(zoneId), Instant.now());
+            return new TimeRange(getDataPeriod(externalSiteId, apiKey).getStart().atStartOfDay(), now);
         }
-        return new TimeRange(latest.get().getTimestamp(), Instant.now());
+        return new TimeRange(latest.get().getTimestamp(), now);
     }
 
     private List<SolaredgePowerDto> getPowerBetween(String externalSiteId, String apiKey, LocalDateTime from, LocalDateTime to)

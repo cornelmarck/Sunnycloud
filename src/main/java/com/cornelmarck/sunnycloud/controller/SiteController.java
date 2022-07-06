@@ -1,15 +1,15 @@
 package com.cornelmarck.sunnycloud.controller;
 
 import com.cornelmarck.sunnycloud.dto.DataPeriodDto;
-import com.cornelmarck.sunnycloud.dto.PowerDto;
 import com.cornelmarck.sunnycloud.exception.RequestConflictException;
 import com.cornelmarck.sunnycloud.exception.SiteNotFoundException;
+import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
 import com.cornelmarck.sunnycloud.service.SiteService;
 import com.cornelmarck.sunnycloud.service.SiteSyncService;
-import com.cornelmarck.sunnycloud.util.DynamoDBInstantConverter;
+import com.cornelmarck.sunnycloud.util.DynamoDBDateTimeConverter;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class SiteController {
 
     private final SiteRepository siteRepository;
     private final PowerRepository powerRepository;
-    private final DynamoDBInstantConverter dynamoDBInstantConverter;
+    private final DynamoDBDateTimeConverter dynamoDBDateTimeConverter;
     private final SiteService siteService;
     private final SiteSyncService siteSyncService;
 
@@ -79,8 +79,8 @@ public class SiteController {
 
     @GetMapping("/sites/{siteId}/power")
     @ResponseStatus(HttpStatus.OK)
-    public List<PowerDto> allBySiteId(@PathVariable String siteId, @RequestParam String from, @RequestParam String to) {
-        return siteService.getPowerDtoBetween(siteId, LocalDateTime.parse(from), LocalDateTime.parse(to));
+    public List<Power> allBySiteId(@PathVariable String siteId, @RequestParam String from, @RequestParam String to) {
+        return siteService.getPowerBetween(siteId, LocalDateTime.parse(from), LocalDateTime.parse(to));
     }
 
     @DeleteMapping("/sites/{siteId}/power")

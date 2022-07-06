@@ -15,12 +15,12 @@ public class SolaredgeDataPeriodDto {
     @Getter @Setter
     private String endDate;
 
-    public Instant getStart(ZoneId zoneId) {
-        return TimeUtils.toInstant(LocalDate.parse(startDate).atStartOfDay(zoneId).toLocalDateTime(), zoneId);
+    public LocalDate getStart() {
+        return LocalDate.parse(startDate);
     }
 
-    public Instant getEnd(ZoneId zoneId) {
-        return TimeUtils.toInstant(LocalDate.parse(endDate).plusDays(1).atStartOfDay(zoneId).toLocalDateTime(), zoneId);
+    public LocalDate getEnd() {
+        return LocalDate.parse(endDate);
     }
 
 }
