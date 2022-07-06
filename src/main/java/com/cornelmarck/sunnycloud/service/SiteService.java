@@ -7,7 +7,6 @@ import com.cornelmarck.sunnycloud.model.Site;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
 import com.cornelmarck.sunnycloud.repository.SiteRepository;
 import com.cornelmarck.sunnycloud.util.DynamoDBDateTimeConverter;
-import com.cornelmarck.sunnycloud.util.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

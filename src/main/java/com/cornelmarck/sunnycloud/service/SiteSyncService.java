@@ -31,11 +31,13 @@ public class SiteSyncService {
     public void updateSite(String siteId) {
         logger.debug("Instantiated site synchronisation: " + siteId);
         Optional<Site> site = siteRepository.findById(siteId);
-        if (site.isEmpty()) {
+        if (site.isEmpty() || site.get().getApiConfig() == null) {
             return;
         }
         AbstractApiConfig config = site.get().getApiConfig();
-
+        if (!config.isActive()) {
+            return;
+        }
         if (config instanceof SolaredgeApiConfig) {
             solaredgeApiService.updateSite(siteId, (SolaredgeApiConfig) config);
         }
