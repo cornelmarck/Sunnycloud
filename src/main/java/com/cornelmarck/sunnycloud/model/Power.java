@@ -2,6 +2,8 @@ package com.cornelmarck.sunnycloud.model;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.cornelmarck.sunnycloud.util.DynamoDBDateTimeConverter;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 public class Power {
     @Getter @Setter
     @DynamoDBHashKey(attributeName = "Id")
+    @JsonIgnore
     private String siteId;
 
     @Getter @Setter
@@ -24,6 +27,7 @@ public class Power {
     @DynamoDBTypeConverted(converter = DynamoDBDateTimeConverter.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private LocalDateTime timestamp;
 
     @Getter @Setter
