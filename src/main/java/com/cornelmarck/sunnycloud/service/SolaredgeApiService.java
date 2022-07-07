@@ -6,7 +6,6 @@ import com.cornelmarck.sunnycloud.exception.SolaredgeApiException;
 import com.cornelmarck.sunnycloud.model.Power;
 import com.cornelmarck.sunnycloud.model.SolaredgeApiConfig;
 import com.cornelmarck.sunnycloud.repository.PowerRepository;
-import com.cornelmarck.sunnycloud.util.TimeRange;
 import com.cornelmarck.sunnycloud.util.TimeUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -27,6 +26,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,21 +44,26 @@ public class SolaredgeApiService {
     private final SiteService siteService;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final Duration maxPowerFetchPeriod = Duration.of(28, ChronoUnit.DAYS);
+    private static final Duration measurementPeriod = Duration.of(15, ChronoUnit.MINUTES);
 
     public void updateSite(String siteId, SolaredgeApiConfig config) {
         logger.info("Updating siteId={}", siteId);
-        TimeRange toUpdate = getRangeToUpdate(siteId, config.getExternalSiteId(), config.getApiKey());
-        for (TimeRange range : toUpdate.split(maxPowerFetchPeriod)) {
-            updateRange(range, siteId, config.getExternalSiteId(), config.getApiKey());
+        LocalDateTime start = getUpdateStartingPoint(siteId, config.getExternalSiteId(), config.getApiKey());
+        LocalDateTime now = Instant.now().atZone(siteService.getTimeZoneId(siteId)).toLocalDateTime();
+
+        while (Duration.between(start, now).compareTo(measurementPeriod) >= 0) {
+            LocalDateTime end = Collections.min(List.of(now, start.plus(maxPowerFetchPeriod)));
+            updateRange(siteId, start, end, config.getExternalSiteId(), config.getApiKey());
+            start = getUpdateStartingPoint(siteId, config.getExternalSiteId(), config.getApiKey());
         }
     }
 
-    private void updateRange(TimeRange range, String siteId, String externalSiteId, String apiKey) {
+    private void updateRange(String siteId, LocalDateTime from, LocalDateTime to, String externalSiteId, String apiKey) {
         ZoneId zoneId = siteService.getTimeZoneId(siteId);
-        logger.info("Updating time range from={} to={}", range.getFrom().toString(), range.getTo().toString());
+        logger.info("Updating time range from={} to={}", from.toString(), to.toString());
 
         try {
-            getPowerBetween(externalSiteId, apiKey, range.getFrom(), range.getTo()).stream()
+            getPowerBetween(externalSiteId, apiKey, from, to).stream()
                     .map(x -> x.toPower(siteId))
                     .collect(Collectors.toList())
                     .forEach(powerRepository::save);
@@ -68,14 +73,12 @@ public class SolaredgeApiService {
         }
     }
 
-    private TimeRange getRangeToUpdate(String siteId, String externalSiteId, String apiKey) {
-        ZoneId zoneId = siteService.getTimeZoneId(siteId);
-        LocalDateTime now = Instant.now().atZone(zoneId).toLocalDateTime();
+    private LocalDateTime getUpdateStartingPoint(String siteId, String externalSiteId, String apiKey) {
         Optional<Power> latest = powerRepository.findLatestBySiteId(siteId);
         if (latest.isEmpty()) {
-            return new TimeRange(getDataPeriod(externalSiteId, apiKey).getStart().atStartOfDay(), now);
+            return getDataPeriod(externalSiteId, apiKey).getStart().atStartOfDay();
         }
-        return new TimeRange(latest.get().getTimestamp(), now);
+        return latest.get().getTimestamp();
     }
 
     private List<SolaredgePowerDto> getPowerBetween(String externalSiteId, String apiKey, LocalDateTime from, LocalDateTime to)
